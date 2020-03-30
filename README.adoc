@@ -18,8 +18,8 @@
 :page-related-guides: ['microprofile-reactive-messaging','reactive-messaging-sse','reactive-service-testing','microprofile-rest-client-async','containerize']
 :page-permalink: /guides/{projectid}
 :imagesdir: /img/guide/{projectid}
-:page-seo-title: Creating a MicroProfile Reactive Messaging REST service with different acknowledgement strategies
-:page-seo-description: A tutorial on how to acknowledge a message in Open Liberty using MicroProfile Reactive Messaging and their comparison
+:page-seo-title: Acknowledging messages in Java microservices using MicroProfile Reactive Messaging
+:page-seo-description: A getting started tutorial with examples on how to acknowledge messages in an asynchronous Java application using different MicroProfile Reactive Messaging acknowledgement policies.
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/dev
 :source-highlighter: prettify
 = Acknowledging messages using MicroProfile Reactive Messaging acknowledgement strategies
