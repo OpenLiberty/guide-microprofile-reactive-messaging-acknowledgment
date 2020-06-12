@@ -20,13 +20,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -85,25 +79,20 @@ public class InventoryResource {
                 .entity("hostname does not exist.")
                 .build();
     }
-    
-    @POST
-    // tag::postPath[]
-    @Path("/systems/property/{propertyName}")
-    // end::postPath[]
+
+    @PUT
+    @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    // tag::getSystemProperty[]
-    public Response getSystemProperty(@PathParam("propertyName") String propertyName) {
-        logger.info("getSystemProperty: " + propertyName);
-        // tag::flowableEmitter[]
-        property.onNext(propertyName);
-        // end::flowableEmitter[]
+    // tag::updateSystemProperty[]
+    public Response updateSystemProperty(String propertyName) {
+        logger.info("updateSystemProperty: " + propertyName);
+        propertyNameEmitter.onNext(propertyName);
         return Response
-                   .status(Response.Status.OK)
-                   .entity("Request successful for the " + propertyName + " property\n")
-                   .build();
+                .status(Response.Status.OK)
+                .entity("Request successful for the " + propertyName + " property\n")
+                .build();
     }
-    // end::getSystemProperty[]
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
