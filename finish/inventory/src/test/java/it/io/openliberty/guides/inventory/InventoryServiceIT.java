@@ -38,8 +38,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.microshed.testing.SharedContainerConfig;
 import org.microshed.testing.jaxrs.RESTClient;
 import org.microshed.testing.jupiter.MicroShedTest;
-import org.microshed.testing.kafka.KafkaConsumerConfig;
-import org.microshed.testing.kafka.KafkaProducerConfig;
+import org.microshed.testing.kafka.KafkaConsumerClient;
+import org.microshed.testing.kafka.KafkaProducerClient;
 
 import io.openliberty.guides.inventory.InventoryResource;
 import io.openliberty.guides.models.SystemLoad;
@@ -53,11 +53,11 @@ public class InventoryServiceIT {
     @RESTClient
     public static InventoryResource inventoryResource;
 
-    @KafkaProducerConfig(valueSerializer = SystemLoadSerializer.class)
+    @KafkaProducerClient(valueSerializer = SystemLoadSerializer.class)
     public static KafkaProducer<String, SystemLoad> producer;
 
-    @KafkaConsumerConfig(valueDeserializer = StringDeserializer.class, 
-            groupId = "property-name", topics = "propertyNameTopic", 
+    @KafkaConsumerClient(valueDeserializer = StringDeserializer.class,
+            groupId = "property-name", topics = "requestSystemPropertyTopic",
             properties = ConsumerConfig.AUTO_OFFSET_RESET_CONFIG + "=earliest")
     public static KafkaConsumer<String, String> propertyConsumer;
 
@@ -88,7 +88,7 @@ public class InventoryServiceIT {
 
     @Test
     public void testGetProperty() {
-        Response response = inventoryResource.getSystemProperty("os.name");
+        Response response = inventoryResource.updateSystemProperty("os.name");
         Assertions.assertEquals(200, response.getStatus(),
                 "Response should be 200");
         int recordsProcessed = 0;

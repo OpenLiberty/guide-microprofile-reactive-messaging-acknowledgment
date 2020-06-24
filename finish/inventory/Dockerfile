@@ -7,13 +7,13 @@ LABEL \
   org.opencontainers.image.authors="My Name" \
   org.opencontainers.image.vendor="Open Liberty" \
   org.opencontainers.image.url="local" \
-  org.opencontainers.image.source="https://github.com/OpenLiberty/guide-microprofile-reactive-messaging-rest" \
+  org.opencontainers.image.source="https://github.com/OpenLiberty/guide-microprofile-reactive-messaging-acknowledgement" \
   org.opencontainers.image.version="$VERSION" \
   org.opencontainers.image.revision="$REVISION" \
   vendor="Open Liberty" \
   name="inventory" \
   version="$VERSION-$REVISION" \
-  summary="The inventory microservice from the 'Trigger messages in reactive Java microservice by a RESTful endpoint' guide" \
+  summary="The inventory microservice from the 'Acknowledging messages using MicroProfile Reactive Messaging acknowledgement strategies' guide" \
   description="This image contains the inventory microservice running with the Open Liberty runtime."
 
 COPY --chown=1001:0 src/main/liberty/config /config/
