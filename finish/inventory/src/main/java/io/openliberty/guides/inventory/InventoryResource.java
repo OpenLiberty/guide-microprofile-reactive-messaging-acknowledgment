@@ -15,6 +15,8 @@ package io.openliberty.guides.inventory;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.reactivestreams.Publisher;
 
@@ -40,7 +43,7 @@ import io.reactivex.rxjava3.core.FlowableEmitter;
 public class InventoryResource {
 
     private static Logger logger = Logger.getLogger(InventoryResource.class.getName());
-    private FlowableEmitter<String> propertyNameEmitter;
+    private FlowableEmitter<Message<String>> propertyNameEmitter;
 
     @Inject
     private InventoryManager manager;
@@ -80,13 +83,17 @@ public class InventoryResource {
     @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response updateSystemProperty(String propertyName) {
+    public CompletionStage<Response> updateSystemProperty(String propertyName) {
         logger.info("updateSystemProperty: " + propertyName);
-        propertyNameEmitter.onNext(propertyName);
-        return Response
+        CompletableFuture<Void> result = new CompletableFuture<>();
+        propertyNameEmitter.onNext(Message.of(propertyName, () -> {
+            result.complete(null);
+            return CompletableFuture.completedFuture(null);
+        }));
+        return result.thenApply(a -> Response
                 .status(Response.Status.OK)
                 .entity("Request successful for the " + propertyName + " property\n")
-                .build();
+                .build());
     }
 
     @DELETE
@@ -124,9 +131,8 @@ public class InventoryResource {
     }
 
     @Outgoing("requestSystemProperty")
-    public Publisher<String> sendPropertyName() {
-        Flowable<String> flowable = Flowable.<String>create(emitter -> 
+    public Publisher<Message<String>> sendPropertyName() {
+        return Flowable.create(emitter ->
             this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
-        return flowable;
     }
 }

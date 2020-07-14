@@ -21,8 +21,12 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
+import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
+import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.reactivestreams.Publisher;
 
 import io.openliberty.guides.models.PropertyMessage;
@@ -58,16 +62,21 @@ public class SystemService {
 
     @Incoming("propertyRequest")
     @Outgoing("propertyResponse")
-    public PropertyMessage sendProperty(String propertyName) {
+    @Acknowledgment(Acknowledgment.Strategy.MANUAL)
+    public PublisherBuilder<Message<PropertyMessage>> sendProperty(Message<String> propertyName) {
         logger.info("sendProperty: " + propertyName);
-        String propertyValue = System.getProperty(propertyName);
+        String propertyValue = System.getProperty(propertyName.getPayload());
         if (propertyValue == null) {
             logger.warning(propertyName + " is not System property.");
-            return null;
+            propertyName.ack();
+            // return null;
+            return ReactiveStreams.empty();
         }
-        return new PropertyMessage(getHostname(), 
-                    propertyName, 
-                    System.getProperty(propertyName, "unknown"));
+        return ReactiveStreams.of(Message.of(
+                new PropertyMessage(getHostname(),
+                    propertyName.getPayload(),
+                    System.getProperty(propertyName.getPayload(), "unknown")),
+                    propertyName::ack
+                ));
     }
-
 }

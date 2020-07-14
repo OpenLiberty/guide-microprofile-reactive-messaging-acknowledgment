@@ -19,7 +19,11 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
+import javax.annotation.processing.Completion;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
@@ -87,10 +91,12 @@ public class InventoryServiceIT {
     }
 
     @Test
-    public void testGetProperty() {
-        Response response = inventoryResource.updateSystemProperty("os.name");
-        Assertions.assertEquals(200, response.getStatus(),
+    public void testGetProperty() throws ExecutionException, InterruptedException {
+        CompletionStage<Response> response = inventoryResource.updateSystemProperty("os.name");
+        int responseStatus = (int)((CompletableFuture)response).join();
+        Assertions.assertEquals(200, responseStatus,
                 "Response should be 200");
+
         int recordsProcessed = 0;
         ConsumerRecords<String, String> records = propertyConsumer.poll(Duration.ofMillis(3000));
         System.out.println("Polled " + records.count() + " records from Kafka:");
