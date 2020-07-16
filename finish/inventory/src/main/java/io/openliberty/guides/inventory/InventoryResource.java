@@ -15,22 +15,19 @@ package io.openliberty.guides.inventory;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.reactivestreams.Publisher;
 
@@ -42,15 +39,11 @@ import io.reactivex.rxjava3.core.FlowableEmitter;
 
 
 @ApplicationScoped
-//tag::inventoryEndPoint[]
 @Path("/inventory")
-//end::inventoryEndPoint[]
 public class InventoryResource {
 
     private static Logger logger = Logger.getLogger(InventoryResource.class.getName());
-    // tag::flowableEmitterDecl[]
-    private FlowableEmitter<String> property;
-    // end::flowableEmitterDecl[]
+    private FlowableEmitter<Message<String>> propertyNameEmitter;
 
     @Inject
     private InventoryManager manager;
@@ -85,25 +78,23 @@ public class InventoryResource {
                 .entity("hostname does not exist.")
                 .build();
     }
-    
-    @POST
-    // tag::postPath[]
-    @Path("/systems/property/{propertyName}")
-    // end::postPath[]
+
+    @PUT
+    @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    // tag::getSystemProperty[]
-    public Response getSystemProperty(@PathParam("propertyName") String propertyName) {
-        logger.info("getSystemProperty: " + propertyName);
-        // tag::flowableEmitter[]
-        property.onNext(propertyName);
-        // end::flowableEmitter[]
-        return Response
-                   .status(Response.Status.OK)
-                   .entity("Request successful for the " + propertyName + " property\n")
-                   .build();
+    public CompletionStage<Response> updateSystemProperty(String propertyName) {
+        logger.info("updateSystemProperty: " + propertyName);
+        CompletableFuture<Void> result = new CompletableFuture<>();
+        propertyNameEmitter.onNext(Message.of(propertyName, () -> {
+            result.complete(null);
+            return CompletableFuture.completedFuture(null);
+        }));
+        return result.thenApply(a -> Response
+                .status(Response.Status.OK)
+                .entity("Request successful for the " + propertyName + " property\n")
+                .build());
     }
-    // end::getSystemProperty[]
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
@@ -115,9 +106,9 @@ public class InventoryResource {
     }
 
     // tag::updateStatus[]
-    // tag::systemLoad[]
+    // tag::systemLoadIncoming[]
     @Incoming("systemLoad")
-    // end::systemLoad[]
+    // end::systemLoadIncoming[]
     public void updateStatus(SystemLoad sl)  {
         String hostname = sl.hostname;
         if (manager.getSystem(hostname).isPresent()) {
@@ -129,10 +120,11 @@ public class InventoryResource {
         }
     }
     // end::updateStatus[]
-    
-    // tag::propertyMessage[]
-    @Incoming("propertyMessage")
-    // end::propertyMessage[]
+
+    // tag::getPropertyMessage[]
+    // tag::addSystemPropertyIncoming[]
+    @Incoming("addSystemProperty")
+    // end::addSystemPropertyIncoming[]
     public void getPropertyMessage(PropertyMessage pm)  {
         logger.info("getPropertyMessage: " + pm);
         String hostId = pm.hostname;
@@ -144,15 +136,11 @@ public class InventoryResource {
             logger.info("Host " + hostId + " was added: " + pm);
         }
     }
-    
-    // tag::OutgoingPropertyName[]
-    @Outgoing("propertyName")
-    // end::OutgoingPropertyName[]
-    public Publisher<String> sendPropertyName() {
-        // tag::flowableCreate[]
-        Flowable<String> flowable = Flowable.<String>create(emitter -> 
-            this.property = emitter, BackpressureStrategy.BUFFER);
-        // end::flowableCreate[]
-        return flowable;
+    // end::getPropertyMessage[]
+
+    @Outgoing("requestSystemProperty")
+    public Publisher<Message<String>> sendPropertyName() {
+        return Flowable.create(emitter ->
+            this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
     }
 }
