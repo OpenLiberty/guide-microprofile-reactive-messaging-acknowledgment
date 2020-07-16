@@ -15,205 +15,215 @@
 :page-description: Learn how to use MicroProfile Reactive Messaging acknowledgement strategies to acknowledge messages.
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Jakarta EE', 'Microservices']
-:page-related-guides: ['microprofile-reactive-messaging','reactive-messaging-sse','reactive-service-testing','microprofile-rest-client-async','containerize']
+:page-related-guides: ['microprofile-reactive-messaging','microprofile-reactive-messaging-rest','reactive-messaging-sse','reactive-service-testing','microprofile-rest-client-async']
 :page-permalink: /guides/{projectid}
 :imagesdir: /img/guide/{projectid}
 :page-seo-title: Acknowledging messages in Java microservices using MicroProfile Reactive Messaging
-:page-seo-description: A getting started tutorial with examples on how to acknowledge messages in an asynchronous Java application using different MicroProfile Reactive Messaging acknowledgement policies.
+:page-seo-description: A getting started tutorial with examples on how to acknowledge messages in asynchronous Java microservices using different MicroProfile Reactive Messaging acknowledgement strategies.
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/dev
 :source-highlighter: prettify
-= Acknowledging messages using MicroProfile Reactive Messaging acknowledgement strategies
+= Acknowledging messages using MicroProfile Reactive Messaging
 
 [.hidden]
 NOTE: This repository contains the guide documentation source. To view the guide in published form, view it on the https://openliberty.io/guides/{projectid}.html[Open Liberty website].   
 
-Learn how to use MicroProfile Reactive Messaging acknowledgement strategies to acknowledge messages.
+Learn how to acknowledge messages using MicroProfile Reactive Messaging.
 
 == What you'll learn
 
-You will learn how to acknowledge messages using MicroProfile Reactive Messaging acknowledgement. You'll also learn how this works with Apache Kafka. 
+MicroProfile Reactive Messaging provides an easy way to handle messages in applications that process streams of events.
+Messages are sent between decoupled microservices, and to ensure that no messages are lost in the event of a system failure,
+reactive messaging systems utilize the concept of acknowledgement. Acknowledgement differentiates between a message that
+has been delivered to the target service, and a message that has been processed and completed. Every message that gets sent
+must be acknowledged. By differentiating the two, any messages that have been delivered but not acknowledged due to a
+system failure can be sent again.
 
-=== What is MicroProfile Reactive Messaging?
+The application in this guide consists of two microservices, `system` and `inventory`. Every 15 seconds, the `system`
+microservice calculates and publishes events that contain its current average system load. The `inventory` microservice
+subscribes to that information so that it can keep an updated list of all the systems and their current system loads.
+The current inventory of systems can be accessed via the `/systems` REST endpoint. You will explore the acknowledgement
+strategies available using MicroProfile Reactive Messaging, and implement your own manual acknowledgement strategy.
+You can learn more about how the reactive Java services used in this guide works by checking out the
+https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
+Please refer to the figure below for a diagram of the application used in this guide.
 
-Temporal decoupling of services in a microservice-based architecture can be achieved using asynchronous communication. MicroProfile Reactive Messaging provides a way to build systems of microservices advocating responsiveness, location transparency, elasticity, resiliency to failure and temporal decoupling. This helps in enforcing asynchronous message passing between the different parts of the system. See
-https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_microprofile_reactive_messaging[ MicroProfile Reactive Messaging Specification^] for more information.
+image::reactive-messaging-system-inventory-rest.png[Reactive system inventory,align="center"]
 
-To learn more about the MicroProfile Reactive Messaging, read https://draft-guides.mybluemix.net/guides/microprofile-reactive-messaging.html[Creating asynchronous reactive microservices using MicroProfile Reactive Messaging].
-
-=== What is MicroProfile Reactive Messaging acknowledgement?
-
-MicroProfile Reactive Messaging Acknowledgement ensures that in case of any system failure, no messages are lost. Messaging system like Apache Kafka differentiates between when a message is being delivered to a system and the processing of that message by that system being complete. If the system goes down, any messages which have been sent but not processed completely can then be sent again. Reactive messaging applications implement this using message acknowledgements.
-
-The OpenLiberty Cafe application that you'll be working with consists of six microservices : `Bar`, `Kitchen`, `Order`, `OpenLibertyCafe`, `ServingWindow`, and `Status`. It also uses Kafka to enable reactive messaging communication between the Producer and Consumer microservices over the messaging channels.
-
-You'll update the `Bar`, `Kitchen`, and `Status` microservices to use MicroProfile Reactive Messaging acknowledgement strategies for message acknowledgement. These microservices run on Open Liberty.
-
-image::reactive-messaging-restaurant.png[Reactive restaurant,align="center"]
-
-The `OpenLibertyCafe` microservice is a https://microservices.io/patterns/apigateway.html#variation-backends-for-frontends[backend for frontend^] service.
-It communicates with the backend microservices on the caller's behalf.
-
-The waitstaff places a request using the `OpenLibertyCafe` microservice.
-
-The `Order` microservice consumes the request, produces order messages, and sends them to Kafka on the `food` or `beverage` channel depending on the type. 
-
-An order begins with a `NEW` status. The `Bar` and `Kitchen` microservices illustrate how to handle the orders as a real cafe. They consume and process the order and update the status to `IN_PROGRESS` and `READY` consecutively. There’s a sleep operation in between each status to represent the order processing time, and the status updates are reported back to the `Status` microservice via reactive messages on the Kafka.
-
-The `ServingWindow` microservice illustrates when the food and beverages are ready to be served. It consumes the `READY` order from the `Kitchen` and `Bar` microservices. Once the order is served, the waitstaff can mark the order as `COMPLETED` and the status is sent back to the `Status` microservice as a message.
-
-The `Status` microservice receives status updates and provides queries for the waitstaff. All the orders are persisted here. Because persisting data is not the focus of this guide, the `Status` microservice simply uses a Map object to store the data.
-
-image::reactive-messaging-keyconcepts.png[Reactive key concepts,align="center"]
-
-// =================================================================================================
-// Prerequisites
-// =================================================================================================
 == Additional prerequisites
 
-You will now build and run the  microservices in Docker containers. You can learn more about containerizing microservices with Docker in the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+You need to have Docker installed. For installation instructions, refer to the official
+https://docs.docker.com/get-docker/[Docker documentation^]. You will build and run the microservices in Docker containers.
+An installation of Apache Kafka is provided in another Docker container.
 
-Install Docker by following the instructions on the official https://docs.docker.com/engine/installation[Docker documentation^]. Start your Docker environment.
-
-// =================================================================================================
-// Getting started
-// =================================================================================================
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
 == MicroProfile Reactive Messaging Acknowledgement Strategies
 
-MicroProfile Reactive Messaging acknowledgement consists of mainly four strategies namely `NONE`, `PRE_PROCESSING` , `POST_PROCESSING` and `MANUAL`.
-Acknowledgement is an important part of message processing. Messages are either acknowledged explicitly, or implicitly by the MicroProfile Reactive Messaging implementation.
-
-`@Acknowledgement` for the `@Incoming` messages is controlled by the `org.eclipse.microprofile.reactive.messaging.Acknowledgment` annotation.
-Default acknowledgement depends on the method signature. Each method signature implements different acknowledgement policies. If the Acknowledgment annotation is not set, the default policy is applied.
-
-Different defaults and supported acknowledgement for each supported signature could be found at the https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[Messaging acknowledgement^] table of the specification.
-
-Methods annotated with only `@Outgoing` do not support acknowledgement as they don’t receive any incoming `Message`.
-
-=== MicroProfile Reactive Messaging NONE Acknowledgement strategy
-
-If the acknowledgement strategy is set to `NONE`, no acknowledgment will be performed. The `NONE` strategy indicates that the incoming message is not acknowledged and the acknowledgment of the outgoing message would not acknowledge the incoming message anymore. The `NONE` strategy may be used for the protocols that do not support message acknowledgment.
-
-=== Building the Bar microservice with PRE_PROCESSING Acknowledgement strategy
-
-If the acknowledgement strategy is set to `PRE_PROCESSING`, the Reactive Messaging implementation acknowledges the message before the annotated method or processing is executed.
-
-If an `@Incoming` annotated method has an acknowledgement strategy defined as `@Acknowledgment(Acknowledgment.Strategy.PRE_PROCESSING)`, the Reactive Messaging implementation is responsible for the acknowledgement of the message.
-
-//Bar
-[role="code_command hotspot file=0", subs="quotes"]
-----
-#Replace the `BarService` class.#
-`bar/src/main/java/io/openliberty/guides/bar/BarService.java`
-----
-BarService.java
+// file 0
+InventoryResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/bar/src/main/java/io/openliberty/guides/bar/BarService.java[]
+include::finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java[]
 ----
 
-If the order is an item of drink, `Bar` service receives an order on the [hotspot=bevOrderConsume file=0]`@Incoming("beverageOrderConsume")` channel, processes it in [hotspot=initBevOrder file=0]`receiveBeverageOrder()` method and sends back an `IN_PROGRESS` status on the [hotspot=bevOrderPublishInter file=0]`@Outgoing("beverageOrderPublishStatus")` channel to Kafka over MicroProfile Reactive Messaging channels. After a while, a `READY` status will be sent to the [hotspot=bevOrder file=0]`@Outgoing("beverageOrderPublishStatus")` channel.
-
-The [hotspot=initBevOrder file=0]`receiveBeverageOrder()` method in Bar microservice matches the following signature.
-
-[source, role="no_copy"]
-----
-@Incoming("in")
-@Outgoing("out")
-O method(I payload)
-----
-
-Based on the table mentioned in the https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[specification^] , the default acknowledgement strategy would be `POST_PROCESSING`. It means that the messages will be acknowledged when the annotated method executes completely. However when we change the strategy to [hotspot=ackPreProcessing file=0]`PRE_PROCESSING`, the incoming message will be acknowledged even before the annotated method is called. It also means that the acknowledgment of the outgoing message would not acknowledge the incoming message anymore, as it’s already acknowledged. In case the service goes down when the message is being processed, the Kafka won't resend the message if the service is restored as the Kafka already processed the message.
-
-=== Building the Kitchen microservice with POST_PROCESSING Acknowledgement strategy
-
-If the acknowledgement strategy is set to `POST_PROCESSING`, the Reactive Messaging implementation acknowledges the message after the annotated method or processing is executed. When dealing with payloads, the `POST_PROCESSING` strategy is the default strategy. 
-
-If an `@Incoming` annotated method has an acknowledgement strategy defined as `@Acknowledgment(Acknowledgment.Strategy.POST_PROCESSING)`, the Reactive Messaging implementation is responsible for the acknowledgement of the message.
-
-//Kitchen
-[role="code_command hotspot file=0", subs="quotes"]
-----
-#Replace the `KitchenService` class.#
-`kitchen/src/main/java/io/openliberty/guides/kitchen/KitchenService.java`
-----
-KitchenService.java
+// file 1
+SystemService.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/kitchen/src/main/java/io/openliberty/guides/kitchen/KitchenService.java[]
+include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
-If the order is an item of food, `Kitchen` service receives an order on the [hotspot=foodOrderConsume file=0]`@Incoming("foodOrderConsume")` channel, processes it in [hotspot=initFoodOrder file=0]`receiveFoodOrder()` method and sends back an `IN_PROGRESS` status on the [hotspot=foodOrderPublishIntermediate file=0]`@Outgoing("foodOrderPublishStatus")` channel to Kafka over MicroProfile Reactive Messaging channels. After a while, a `READY` status will be sent to the [hotspot=foodOrder file=0]`@Outgoing("foodOrderPublishStatus")` channel.
+MicroProfile Reactive Messaging consists of four acknowledgement strategies: `NONE`, `PRE_PROCESSING`, `POST_PROCESSING`,
+and `MANUAL`. Acknowledging messages is required in reactive applications. Messages are either acknowledged explicitly, or
+implicitly by the MicroProfile Reactive Messaging implementation.
 
-The [hotspot=initFoodOrder file=0]`receiveFoodOrder()` method in Kitchen microservice annotated with [hotspot=ackPostProcessing file=0]`POST_PROCESSING` acknowledgement strategy indicates that the incoming message is acknowledged when the outgoing message is acknowledged. i.e. when the emitted data is acknowledged. In case the service goes down when the message is being processed, the Kafka will resend the message and the message will be reprocessed.
+`@Acknowledgement` for the `@Incoming` messages is controlled by the `org.eclipse.microprofile.reactive.messaging.Acknowledgment`
+annotation. If the `@Acknowledgement` annotation is not defined explicitly, the default acknowledgement strategy applies, and
+depends on the method signature. Only methods that receive incoming messages and are annotated with `@Incoming` need to
+acknowledge messages, methods that are only annotated with `@Outgoing` methods do not support acknowledgement.
 
-Check the https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[specification^] to see whether reactive messaging does `PRE_PROCESSING` or `POST_PROCESSING` message acknowledgements for your method. If it does `PRE_PROCESSING` consider changing to `POST_PROCESSING` based on your application need.
+Different defaults and supported acknowledgement for each supported signature could be found at the
+https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[Messaging acknowledgement^]
+table of the specification.
 
-=== Building the Status microservice with MANUAL Acknowledgement strategy
+=== NONE Acknowledgement strategy
 
-If the acknowledgement strategy is set to `MANUAL`, a user or a developer is responsible for the acknowledgement. It can be achieved by calling the `Message.ack()` method, so that the Reactive Messaging implementation does not apply implicit acknowledgement.
+If the acknowledgement strategy is set to `NONE`, no acknowledgment will be performed. The `NONE` strategy may be used
+for the protocols that do not support message acknowledgment. None of the methods in this guide have been configured to
+use the `NONE` acknowledgement strategy.
 
-//status
-[role="code_command hotspot file=0", subs="quotes"]
+=== PRE_PROCESSING Acknowledgement strategy
+
+If the acknowledgement strategy is set to `PRE_PROCESSING`, the message is acknowledged before the method processes the
+received message. Methods that use the `PRE_PROCESSING` or `POST_PROCESSING` acknowledgement strategy rely on the
+MicroProfile Reactive Messaging implementation of said strategies. None of the methods in this guide have been configured
+or defaults to using the `PRE_PROCESSING` acknowledgement strategy.
+
+=== POST_PROCESSING Acknowledgement strategy
+
+If the acknowledgement strategy is set to `POST_PROCESSING`, the Reactive Messaging implementation will acknowledge the
+message depending on if the annotated method emits data:
+
+    1. If the method emits data, the incoming message will be acknowledged once the outgoing message is acknowledged
+    2. If the method does not emit data, the incoming message will be acknowledged once the method or processing completes
+
+The `inventory` service contains two methods with the [hotspot=addSystemPropertyIncoming hotspot=systemLoadIncoming file=0]`@Incoming`
+annotation, the [hotspot=updateStatus file=0]`updateStatus()` and the [hotspot=getPropertyMessage file=0]`getPropertyMessage()`
+methods. Both methods have the same method signature, consuming a payload of an Object type, and returning void. The
+https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[Messaging acknowledgement^]
+table specifies that the default acknowledgement strategies applied to methods of that signature is the `POST_PROCESSING`
+strategy. Both methods use the incoming message to apply changes to the stored inventory of systems, and thus acts as a
+message processor. In this example, the `POST_PROCESSING` strategy would be best, as the acknowledgement should ensure that
+the message has been successfully processed. Since the method signature defaults to the `POST_PROCESSING` strategy,
+there is no need to explicitly define the acknowledgement strategy, and is therefore omitted from the method.
+
+=== MANUAL Acknowledgement strategy
+
+If the acknowledgement strategy is set to `MANUAL`, the source code is responsible for the acknowledgement, typically by
+using the `Message.ack()` method. `MANUAL` acknowledgement is useful for when the required acknowledgement can not be
+accomplished by any other existing Reactive Messaging implementation, and is often used when the incoming message should
+be acknowledged after the outgoing message is acknowledged.
+
+The `inventory` service sends a system property request to the `system` service, but does not verify if the system
+property is valid, therefore the verification is done in the `system` service. The message acknowledgement is handled
+according to whether the system property request is valid or not.
+
+Ensure that you are in the `start` directory.
+
+[role="code_command hotspot file=1", subs="quotes"]
 ----
-#Replace the `StatusResource` class.#
-`status/src/main/java/io/openliberty/guides/status/StatusResource.java`
+#Replace the `SystemService` class.#
+`system/src/main/java/io/openliberty/guides/system/SystemService.java`
 ----
 
-StatusResource.java
+The changes include implementing a `MANUAL` message acknowledgement strategy that fits the method processing requirements.
+First, the method is annotated with the [hotspot=ackAnnotation file=1]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)`
+annotation, and therefore must manually acknowledge the message. Next, the method parameter is updated to a
+[hotspot=methodSignature file=1]`Message` of type `String`, instead of just a string, as only messages can be acknowledged,
+and therefore the method expects an incoming message. Then, the message [hotspot=propertyValue file=1]`payload` is extracted
+and checked for validity. There are two outcomes:
+
+    1. If the system property is [hotspot=invalid file=1]`invalid`, the method [hotspot=propertyNameAck file=1]`acknowledges`
+        the incoming message and [hotspot=emptyReactiveStream file=1]`returns` an empty reactive stream. The processing is
+        complete.
+    2. If the system property is valid, the method creates a new outgoing [hotspot=returnMessage file=1]`message` with
+        the value of the requested system property, and sends it to the proper channel, and the method will only
+        acknowledge the incoming message once the outgoing message has been acknowledged.
+
+== Waiting for a message to be acknowledged
+
+// file 0
+InventoryResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/status/src/main/java/io/openliberty/guides/status/StatusResource.java[]
+include::finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java[]
 ----
 
-status/microprofile-config.properties
-[source, Text, linenums, role='code_column hide_tags=copyright']
+The `inventory` service contains an endpoint where, when a `PUT` request is submitted, will send a message to the `system`
+service to provide the value of the requested system property. Currently, a `200` response code is returned without establishing
+if the sent message has been acknowledged. Replace the `inventory` service to only return a `200` response once the outgoing
+message has been acknowledged.
+
+[role="code_command hotspot file=0", subs="quotes"]
 ----
-include::finish/status/src/main/resources/META-INF/microprofile-config.properties[]
+#Replace the `InventoryResource` class.#
+`inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java`
 ----
 
-The `Status` microservice receives the message from the `Bar`, `Kitchen`, `Order`, and `ServingWindow` microservices over the [hotspot=updateStatus file=0]`@Incoming("updateStatus")` channel with its properties defined in the [hotspot=updateStatus file=1]`microprofile-config.properties`.
+(explain source code, pending on chat with Andrew)
 
-The [hotspot=updateStatusMethod file=0]`updateStatus()` method in Status microservice annotated with [hotspot=ackManual file=0]`MANUAL` acknowledgement strategy 
-indicates that the incoming message acknowledgement is managed by the user code. The [hotspot=manualAckUser file=0]`order.ack()` method acknowledges the message once the method completes all it's processing.
+== Building and running the application
 
-For the `MANUAL` acknowledgement, transiting data needs to be wrapped in a `Message`. The `Message` class provides metadata and also allows messages to be acknowledged.
+// Include OS specific tabs
+include::{common-includes}/os-tabs.adoc[]
 
-== Building the application
+Build the `system` and `inventory` microservices using Maven and then run them in Docker containers.
 
-You will build and run the `Bar`, `Kitchen`, `Order`, `OpenLibertyCafe`, `ServingWindow`, and `Status` microservices in Docker containers.
+Start your Docker environment. Dockerfiles are provided for you to use.
 
-Start your Docker environment.
+Scripts are provided for you to easily package your application and build your images.
 
-To build the application, run the Maven `install` and `package` goals from the command line in the `start` directory:
+To build the application, use the provided script from the `start` directory:
 
+[.tab_content.mac_section.linux_section]
+--
 [role='command']
 ```
-mvn -pl models install
-mvn package
+./scripts/packageApps.sh
 ```
+--
 
-Run the following command to download or update the `open-liberty` docker image to latest.
+[.tab_content.windows_section]
+--
 [role='command']
 ```
-docker pull open-liberty
+.\scripts\packageApps.bat
 ```
+--
 
-Run the following commands to containerize the microservices:
+Next, run the following script to containerize the microservices. The script pulls the latest Open Liberty image and builds
+the Docker images using the Dockerfiles in the `system` and `inventory` source directories:
 
+[.tab_content.mac_section.linux_section]
+--
 [role='command']
 ```
-docker build -t bar:1.0-SNAPSHOT bar/.
-docker build -t kitchen:1.0-SNAPSHOT kitchen/.
-docker build -t openlibertycafe:1.0-SNAPSHOT openLibertyCafe/.
-docker build -t order:1.0-SNAPSHOT order/.
-docker build -t servingwindow:1.0-SNAPSHOT servingWindow/.
-docker build -t status:1.0-SNAPSHOT status/.
+./scripts/buildImages.sh
 ```
+--
 
-Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and all of the microservices in the project.
+[.tab_content.windows_section]
+--
+[role='command']
+```
+.\scripts\buildImages.bat
+```
+--
+
+Next, run the following script to start the application in Docker containers. The script creates a network for the
+containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and the microservices in the
+project. For simplicity, the script starts one instance of the `system` service.
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -233,110 +243,70 @@ include::{common-includes}/os-tabs.adoc[]
 ```
 --
 
-== Trying the application
+== Testing the application
 
-Once the application is up and running, you can access the application by making requests to the `OpenLibertyCafe` endpoint using OpenAPI.
+Wait for the services to become available. After the services are up and running, you can access the
+application by making a GET request to the `/systems` endpoint of the `inventory` service.
 
-The services take some time to become available. Check out the service that you created at the
-http://localhost:9080/openapi/ui[^] URL.
+Visit the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. You see the CPU `systemLoad`
+property for all the systems:
 
-*Place Orders*
-
-Make a `POST` request to the `/api/orders` endpoint. To make this request, expand the `POST` endpoint on the UI, click the *Try it out button*. Copy the following example input into the text box, and then click the `Execute` button. The `POST` request adds a new `food` and `beverage` Order.
-
-[source, role='command']
+[source, role='no_copy']
 ----
 {
-  "tableId": "1",
-  "foodList": [
-    "burger"
-  ],
-  "beverageList": [
-    "coke"
-  ]
+   "hostname":"30bec2b63a96",
+   "systemLoad":1.44
 }
 ----
 
-*Check IN_PROGRESS Order Status*
+The `system` service sends messages to the `inventory` service every 15 seconds, the `inventory` service acknowledges each
+incoming message after processing them, ensuring that no `system` message is lost.
 
-Next, make a `GET` request to the `/api/status` endpoint. To make this request, expand the `GET` endpoint on the UI, click the *Try it out button*, and then click the `Execute` button. The `GET` request returns information about the Orders. The response should show that the Orders have an `IN_PROGRESS` status. Just in case if you see a `NEW` status then wait for a couple of seconds and click the `Execute` button again.
+You can revisit the http://localhost:9085/inventory/systems[^] URL after a while, and you will notice the CPU `systemLoad`
+property for the systems changed.
 
-[source, role="no_copy"]
-----
-[
-  {
-    "item": "burger",
-    "orderId": "0001",
-    "status": "IN_PROGRESS",
-    "tableId": "1",
-    "type": "FOOD"
-  },
-  {
-    "item": "coke",
-    "orderId": "0002",
-    "status": "IN_PROGRESS",
-    "tableId": "1",
-    "type": "BEVERAGE"
-  }
-]
-----
+Make a `PUT` request on the `\http://localhost:9085/inventory/data` URL to add the value of a particular system
+property to the set of existing properties.
 
-*Check READY Order Status*
+For example :
 
-Click `Execute` again and you will see the response with a `READY` status. Just in case if you see an `IN_PROGRESS` status then wait for a couple of seconds and click the `Execute` button again.
+The `PUT` request with the `os.name` system property in the request body on the `\http://localhost:9085/inventory/data`
+URL will add the `os.name` system property for your system.
 
-[source, role="no_copy"]
-----
-[
-  {
-    "item": "burger",
-    "orderId": "0001",
-    "status": "READY",
-    "tableId": "1",
-    "type": "FOOD"
-  },
-  {
-    "item": "coke",
-    "orderId": "0002",
-    "status": "READY",
-    "tableId": "1",
-    "type": "BEVERAGE"
-  }
-]
-----
+Make a `PUT` request to the service by using `curl`:
 
-*Complete an Order*
+[role=command]
+```
+curl -X PUT -d "os.name" http://localhost:9085/inventory/data --header "Content-Type:text/plain"
+```
 
-Make a `POST` request to the `/api/servingWindow/{orderId}` endpoint to complete an order. Expand the `POST` endpoint on the UI, click the *Try it out* button. Copy the following orderId into the text box, and then click the `Execute` button.
- 
-[source, role='command']
-----
+If the `curl` command is unavailable, then use https://www.getpostman.com/[Postman^]. Postman enables you
+to make requests using a graphical interface. To make a request with Postman, enter `\http://localhost:9085/inventory/systems`
+into the URL bar and change the request from `GET` to `PUT`. Go to the `Body` tab and enter the `os.name` value under
+raw category. Click the blue `Send` button to make the request.
 
-0002
-----
+Behind the scenes, the `inventory` service sends a message containing the requested system property to the `system` service.
+The `inventory` service then waits until the message has been acknowledged before sending a response back.
 
-The status for the `orderId 0002` is changed from `READY` to `COMPLETED` and the updated status is cascaded to the `Status` microservice.
-
-Then, make a `GET` request to the `/api/status` endpoint again and verify that the status for the order with an `orderId` of `0002` is now labelled as `COMPLETED`.
+After sending the request you see the following output:
 
 [source, role="no_copy"]
 ----
-[
-  {
-    "item": "burger",
-    "orderId": "0001",
-    "status": "READY",
-    "tableId": "1",
-    "type": "FOOD"
-  },
-  {
-    "item": "coke",
-    "orderId": "0002",
-    "status": "COMPLETED",
-    "tableId": "1",
-    "type": "BEVERAGE"
-  }
-]
+Request successful for the os.name property
+----
+
+The above response is confirmation that the sent request message has been acknowledged.
+
+You can revisit the http://localhost:9085/inventory/systems[^] URL and see the `os.name` system property value in addition
+to the previous values:
+
+[source, role='no_copy']
+----
+{
+   "hostname":"30bec2b63a96",
+   "os.name":"Linux",
+   "systemLoad":1.44
+}
 ----
 
 == Tearing down the environment
@@ -376,4 +346,3 @@ https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/ap
 https://openliberty.io/docs/ref/microprofile[View the MicroProfile API^]
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
-

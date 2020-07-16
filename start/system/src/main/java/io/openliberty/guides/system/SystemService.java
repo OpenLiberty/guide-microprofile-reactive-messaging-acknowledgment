@@ -21,12 +21,8 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
-import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
-import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.reactivestreams.Publisher;
 
 import io.openliberty.guides.models.PropertyMessage;
@@ -35,10 +31,10 @@ import io.reactivex.rxjava3.core.Flowable;
 
 @ApplicationScoped
 public class SystemService {
-    
+
     private static Logger logger = Logger.getLogger(SystemService.class.getName());
 
-    private static final OperatingSystemMXBean osMean = 
+    private static final OperatingSystemMXBean osMean =
             ManagementFactory.getOperatingSystemMXBean();
     private static String hostname = null;
 
@@ -62,34 +58,15 @@ public class SystemService {
 
     @Incoming("propertyRequest")
     @Outgoing("propertyResponse")
-    // tag::ackAnnotation[]
-    @Acknowledgment(Acknowledgment.Strategy.MANUAL)
-    // end::ackAnnotation[]
-    // tag::methodSignature[]
-    public PublisherBuilder<Message<PropertyMessage>> sendProperty(Message<String> propertyName) {
-    // end::methodSignature[]
+    public PropertyMessage sendProperty(String propertyName) {
         logger.info("sendProperty: " + propertyName);
-        // tag::propertyValue[]
-        String propertyValue = System.getProperty(propertyName.getPayload());
-        // end::propertyValue[]
-        // tag::invalid[]
+        String propertyValue = System.getProperty(propertyName);
         if (propertyValue == null) {
             logger.warning(propertyName + " is not System property.");
-            // tag::propertyNameAck[]
-            propertyName.ack();
-            // end::propertyNameAck[]
-            // tag::emptyReactiveStream[]
-            return ReactiveStreams.empty();
-            // end::emptyReactiveStream[]
+            return null;
         }
-        // end::invalid[]
-        // tag::returnMessage[]
-        return ReactiveStreams.of(Message.of(
-                new PropertyMessage(getHostname(),
-                    propertyName.getPayload(),
-                    System.getProperty(propertyName.getPayload(), "unknown")),
-                    propertyName::ack
-                ));
-        // end::returnMessage[]
+        return new PropertyMessage(getHostname(),
+                propertyName,
+                System.getProperty(propertyName, "unknown"));
     }
 }
