@@ -86,10 +86,13 @@ public class InventoryResource {
     public CompletionStage<Response> updateSystemProperty(String propertyName) {
         logger.info("updateSystemProperty: " + propertyName);
         CompletableFuture<Void> result = new CompletableFuture<>();
-        propertyNameEmitter.onNext(Message.of(propertyName, () -> {
+
+        Message<String> message = Message.of(propertyName, () -> {
             result.complete(null);
             return CompletableFuture.completedFuture(null);
-        }));
+        });
+
+        propertyNameEmitter.onNext(message);
         return result.thenApply(a -> Response
                 .status(Response.Status.OK)
                 .entity("Request successful for the " + propertyName + " property\n")

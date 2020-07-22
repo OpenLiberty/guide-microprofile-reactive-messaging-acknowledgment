@@ -66,17 +66,19 @@ public class SystemService {
     @Acknowledgment(Acknowledgment.Strategy.MANUAL)
     // end::ackAnnotation[]
     // tag::methodSignature[]
-    public PublisherBuilder<Message<PropertyMessage>> sendProperty(Message<String> propertyName) {
+    public PublisherBuilder<Message<PropertyMessage>>
+    sendProperty(Message<String> propertyMessage) {
     // end::methodSignature[]
+        // tag::propertyName[]
+        String propertyName = System.getProperty(propertyMessage.getPayload());
+        // end::propertyName[]
         logger.info("sendProperty: " + propertyName);
-        // tag::propertyValue[]
-        String propertyValue = System.getProperty(propertyName.getPayload());
-        // end::propertyValue[]
         // tag::invalid[]
-        if (propertyValue == null) {
-            logger.warning(propertyName + " is not System property.");
+        if (propertyName == null || propertyName.isEmpty()) {
+            logger.warning(propertyName == null ? "Null" : "An empty string"
+                    + " is not System property.");
             // tag::propertyNameAck[]
-            propertyName.ack();
+            propertyMessage.ack();
             // end::propertyNameAck[]
             // tag::emptyReactiveStream[]
             return ReactiveStreams.empty();
@@ -84,12 +86,13 @@ public class SystemService {
         }
         // end::invalid[]
         // tag::returnMessage[]
-        return ReactiveStreams.of(Message.of(
+        Message<PropertyMessage> message = Message.of(
                 new PropertyMessage(getHostname(),
-                    propertyName.getPayload(),
-                    System.getProperty(propertyName.getPayload(), "unknown")),
-                    propertyName::ack
-                ));
+                        propertyName,
+                        System.getProperty(propertyName, "unknown")),
+                propertyMessage::ack
+        );
+        return ReactiveStreams.of(message);
         // end::returnMessage[]
     }
 }

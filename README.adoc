@@ -141,7 +141,7 @@ The changes include implementing a `MANUAL` message acknowledgement strategy tha
 First, the method is annotated with the [hotspot=ackAnnotation file=1]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)`
 annotation, and therefore must manually acknowledge the message. Next, the method parameter is updated to a
 [hotspot=methodSignature file=1]`Message` of type `String`, instead of just a string, as only messages can be acknowledged,
-and therefore the method expects an incoming message. Then, the message [hotspot=propertyValue file=1]`payload` is extracted
+and therefore the method expects an incoming message. Then, the message [hotspot=propertyName file=1]`payload` is extracted
 and checked for validity. There are two outcomes:
 
     1. If the system property is [hotspot=invalid file=1]`invalid`, the method [hotspot=propertyNameAck file=1]`acknowledges`
