@@ -84,9 +84,9 @@ public class InventoryResource {
     @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    // tag::updateSystemPropertyHeader[]
+    // tag::USPHeader[]
     public CompletionStage<Response> updateSystemProperty(String propertyName) {
-    // tag::updateSystemPropertyHeader[]
+    // end::USPHeader[]
         logger.info("updateSystemProperty: " + propertyName);
         // tag::CompletableFuture[]
         CompletableFuture<Void> result = new CompletableFuture<>();
@@ -155,9 +155,9 @@ public class InventoryResource {
 
     // tag::sendPropertyName[]
     @Outgoing("requestSystemProperty")
-    // tag::sendPropertyNameHeader[]
+    // tag::SPMHeader[]
     public Publisher<Message<String>> sendPropertyName() {
-    // end::sendPropertyNameHeader[]
+    // end::SPMHeader[]
         Flowable<Message<String>> flowable = Flowable.create(emitter ->
                 this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
         return flowable;
