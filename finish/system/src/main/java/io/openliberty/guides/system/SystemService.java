@@ -75,7 +75,7 @@ public class SystemService {
         // end::propertyValue[]
         logger.info("sendProperty: " + propertyValue);
         // tag::invalid[]
-        if (propertyName == null || propertyName.isEmpty() || propertyValue == null) {
+        if (propertyName == null || propertyName.isEmpty() || propertyValue == "unknown") {
             logger.warning("Provided property: " +
                     propertyName + " is not a system property");
             // tag::propertyMessageAck[]

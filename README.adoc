@@ -183,53 +183,29 @@ response code once the variable is completed. The variable is set to complete on
 
 == Building and running the application
 
-// Include OS specific tabs
-include::{common-includes}/os-tabs.adoc[]
-
 Build the `system` and `inventory` microservices using Maven and then run them in Docker containers.
 
 Start your Docker environment. Dockerfiles are provided for you to use.
 
-Scripts are provided for you to easily package your application and build your images.
+To build the application, run the Maven `install` and `package` goals from the command line in the `start` directory:
 
-To build the application, use the provided script from the `start` directory:
-
-[.tab_content.mac_section.linux_section]
---
 [role='command']
 ```
-./scripts/packageApps.sh
+mvn -pl models install
+mvn package
 ```
---
 
-[.tab_content.windows_section]
---
+include::{common-includes}/ol-kernel-docker-pull.adoc[]
+
+Run the following commands to containerize the microservices:
+
 [role='command']
 ```
-.\scripts\packageApps.bat
+docker build -t system:1.0-SNAPSHOT system/.
+docker build -t inventory:1.0-SNAPSHOT inventory/.
 ```
---
 
-Next, run the following script to containerize the microservices. The script pulls the latest Open Liberty image and builds
-the Docker images using the Dockerfiles in the `system` and `inventory` source directories:
-
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/buildImages.sh
-```
---
-
-[.tab_content.windows_section]
---
-[role='command']
-```
-.\scripts\buildImages.bat
-```
---
-
-Next, run the following script to start the application in Docker containers. The script creates a network for the
+Next, use the provided script to start the application in Docker containers. The script creates a network for the
 containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and the microservices in the
 project. For simplicity, the script starts one instance of the `system` service.
 
