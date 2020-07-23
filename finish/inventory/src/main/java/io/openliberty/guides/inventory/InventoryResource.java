@@ -29,7 +29,6 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
-import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.reactivestreams.Publisher;
 
 import io.openliberty.guides.models.PropertyMessage;
@@ -80,25 +79,37 @@ public class InventoryResource {
                 .build();
     }
 
+    // tag::updateSystemProperty[]
     @PUT
     @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
+    // tag::updateSystemPropertyHeader[]
     public CompletionStage<Response> updateSystemProperty(String propertyName) {
+    // tag::updateSystemPropertyHeader[]
         logger.info("updateSystemProperty: " + propertyName);
+        // tag::CompletableFuture[]
         CompletableFuture<Void> result = new CompletableFuture<>();
+        // tag::CompletableFuture[]
 
-        Message<String> message = Message.of(propertyName, () -> {
-            result.complete(null);
-            return CompletableFuture.completedFuture(null);
-        });
+        Message<String> message = Message.of(propertyName,
+            // tag::acknowledgeAction[]
+            () -> {
+                result.complete(null);
+                return CompletableFuture.completedFuture(null);
+            }
+            // end::acknowledgeAction[]
+        );
 
         propertyNameEmitter.onNext(message);
+        // tag::returnResult[]
         return result.thenApply(a -> Response
                 .status(Response.Status.OK)
                 .entity("Request successful for the " + propertyName + " property\n")
                 .build());
+        // end::returnResult[]
     }
+    // end::updateSystemProperty[]
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
@@ -142,10 +153,14 @@ public class InventoryResource {
     }
     // end::getPropertyMessage[]
 
+    // tag::sendPropertyName[]
     @Outgoing("requestSystemProperty")
+    // tag::sendPropertyNameHeader[]
     public Publisher<Message<String>> sendPropertyName() {
+    // end::sendPropertyNameHeader[]
         Flowable<Message<String>> flowable = Flowable.create(emitter ->
                 this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
         return flowable;
     }
+    // end::sendPropertyName[]
 }
