@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
+import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.reactivestreams.Publisher;
 
 import io.openliberty.guides.models.PropertyMessage;
@@ -143,7 +144,8 @@ public class InventoryResource {
 
     @Outgoing("requestSystemProperty")
     public Publisher<Message<String>> sendPropertyName() {
-        return Flowable.create(emitter ->
-            this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
+        Flowable<Message<String>> flowable = Flowable.create(emitter ->
+                this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
+        return flowable;
     }
 }
