@@ -69,17 +69,18 @@ public class SystemService {
     public PublisherBuilder<Message<PropertyMessage>>
     sendProperty(Message<String> propertyMessage) {
     // end::methodSignature[]
-        // tag::propertyName[]
-        String propertyName = System.getProperty(propertyMessage.getPayload());
-        // end::propertyName[]
-        logger.info("sendProperty: " + propertyName);
+        // tag::propertyValue[]
+        String propertyName = propertyMessage.getPayload();
+        String propertyValue = System.getProperty(propertyName, "unknown");
+        // end::propertyValue[]
+        logger.info("sendProperty: " + propertyValue);
         // tag::invalid[]
         if (propertyName == null || propertyName.isEmpty()) {
-            logger.warning(propertyName == null ? "Null" : "An empty string"
+            logger.warning(propertyValue == null ? "Null" : "An empty string"
                     + " is not System property.");
-            // tag::propertyNameAck[]
+            // tag::propertyMessageAck[]
             propertyMessage.ack();
-            // end::propertyNameAck[]
+            // end::propertyMessageAck[]
             // tag::emptyReactiveStream[]
             return ReactiveStreams.empty();
             // end::emptyReactiveStream[]
@@ -89,7 +90,7 @@ public class SystemService {
         Message<PropertyMessage> message = Message.of(
                 new PropertyMessage(getHostname(),
                         propertyName,
-                        System.getProperty(propertyName, "unknown")),
+                        propertyValue),
                 propertyMessage::ack
         );
         return ReactiveStreams.of(message);
