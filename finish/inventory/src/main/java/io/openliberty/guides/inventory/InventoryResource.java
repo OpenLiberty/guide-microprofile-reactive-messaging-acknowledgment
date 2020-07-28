@@ -90,7 +90,7 @@ public class InventoryResource {
         logger.info("updateSystemProperty: " + propertyName);
         // tag::CompletableFuture[]
         CompletableFuture<Void> result = new CompletableFuture<>();
-        // tag::CompletableFuture[]
+        // end::CompletableFuture[]
 
         Message<String> message = Message.of(propertyName,
             // tag::acknowledgeAction[]
