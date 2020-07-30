@@ -43,7 +43,7 @@ microservice calculates and publishes events that contain its current average sy
 subscribes to that information so that it can keep an updated list of all the systems and their current system loads.
 The current inventory of systems can be accessed via the `/systems` REST endpoint. You will explore the acknowledgement
 strategies available using MicroProfile Reactive Messaging, and implement your own manual acknowledgement strategy.
-You can learn more about how the reactive Java services used in this guide works by checking out the
+You can learn more about how the reactive Java services used in this guide work by checking out the
 https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
 Please refer to the figure below for a diagram of the application used in this guide.
 
