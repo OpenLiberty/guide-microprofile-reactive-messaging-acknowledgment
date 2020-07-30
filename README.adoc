@@ -31,9 +31,9 @@ Learn how to acknowledge messages using MicroProfile Reactive Messaging.
 
 == What you'll learn
 
-MicroProfile Reactive Messaging provides an easy way to handle messages in applications that process streams of events.
-Messages are sent between decoupled microservices, and to ensure that no messages are lost in the event of a system failure,
-reactive messaging systems utilize the concept of acknowledgement. Acknowledgement differentiates between a message that
+MicroProfile Reactive Messaging provides an easy way to handle messages in applications that process streams of events,
+and ensure that these messages are not lost in the event of a system failure by using the concept of acknowledgement.
+Acknowledgement differentiates between a message that
 has been delivered to the target service, and a message that has been processed and completed. Every message that gets sent
 must be acknowledged. By differentiating the two, any messages that have been delivered but not acknowledged due to a
 system failure can be sent again.
@@ -95,8 +95,8 @@ Here is a breakdown of the four acknowledgement strategies:
 | NONE              | No acknowledgment will be performed. The `NONE` strategy may be used for the protocols that do not support message acknowledgment.
 | PRE_PROCESSING    | The message is acknowledged before the method processes the received message. Methods that use the `PRE_PROCESSING` or `POST_PROCESSING` acknowledgement strategy rely on the MicroProfile Reactive Messaging implementation of said strategies.
 | POST_PROCESSING   | If the acknowledgement strategy is set to `POST_PROCESSING`, the Reactive Messaging implementation will acknowledge the message depending on if the annotated method emits data:
-|                   |   1. If the method emits data, the incoming message will be acknowledged once the outgoing message is acknowledged
-|                   |   2. If the method does not emit data, the incoming message will be acknowledged once the method or processing completes
+                        1. If the method emits data, the incoming message will be acknowledged once the outgoing message is acknowledged
+                        2. If the method does not emit data, the incoming message will be acknowledged once the method or processing completes
 | MANUAL            | The source code is responsible for the acknowledgement, typically by using the `Message.ack()` method. `MANUAL` acknowledgement is useful for when the required acknowledgement can not be accomplished by any other existing Reactive Messaging implementation, and is often used when the incoming message should be acknowledged after the outgoing message is acknowledged.
 |===
 
