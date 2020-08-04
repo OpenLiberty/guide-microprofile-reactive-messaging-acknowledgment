@@ -31,9 +31,9 @@ Learn how to acknowledge messages using MicroProfile Reactive Messaging.
 
 == What you'll learn
 
-MicroProfile Reactive Messaging provides an easy way to handle messages in applications that process streams of events.
-Messages are sent between decoupled microservices, and to ensure that no messages are lost in the event of a system failure,
-reactive messaging systems utilize the concept of acknowledgement. Acknowledgement differentiates between a message that
+MicroProfile Reactive Messaging provides an easy way to handle messages in applications that process streams of events,
+and ensure that these messages are not lost in the event of a system failure by using the concept of acknowledgement.
+Acknowledgement differentiates between a message that
 has been delivered to the target service, and a message that has been processed and completed. Every message that gets sent
 must be acknowledged. By differentiating the two, any messages that have been delivered but not acknowledged due to a
 system failure can be sent again.
@@ -43,7 +43,7 @@ microservice calculates and publishes events that contain its current average sy
 subscribes to that information so that it can keep an updated list of all the systems and their current system loads.
 The current inventory of systems can be accessed via the `/systems` REST endpoint. You will explore the acknowledgement
 strategies available using MicroProfile Reactive Messaging, and implement your own manual acknowledgement strategy.
-You can learn more about how the reactive Java services used in this guide works by checking out the
+You can learn more about how the reactive Java services used in this guide work by checking out the
 https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
 Please refer to the figure below for a diagram of the application used in this guide.
 
@@ -78,52 +78,30 @@ MicroProfile Reactive Messaging consists of four acknowledgement strategies: `NO
 and `MANUAL`. Acknowledging messages is required in reactive applications. Messages are either acknowledged explicitly, or
 implicitly by the MicroProfile Reactive Messaging implementation.
 
-`@Acknowledgement` for the `@Incoming` messages is controlled by the `org.eclipse.microprofile.reactive.messaging.Acknowledgment`
-annotation. If the `@Acknowledgement` annotation is not defined explicitly, the default acknowledgement strategy applies, and
-depends on the method signature. Only methods that receive incoming messages and are annotated with `@Incoming` need to
-acknowledge messages, methods that are only annotated with `@Outgoing` methods do not support acknowledgement.
+Acknowledgement for the incoming messages is controlled by the `@Acknowledgment` annotation in the MicroProfile Reactive
+Messaging specification. If the `@Acknowledgement` annotation is not defined explicitly, the default acknowledgement
+strategy applies, and depends on the method signature. Only methods that receive incoming messages and are annotated with
+`@Incoming` need to acknowledge messages, methods that are only annotated with `@Outgoing` methods do not support
+acknowledgement.
 
 Different defaults and supported acknowledgement for each supported signature could be found at the
 https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[Messaging acknowledgement^]
 table of the specification.
 
-=== NONE Acknowledgement strategy
+Here is a breakdown of the four acknowledgement strategies:
 
-If the acknowledgement strategy is set to `NONE`, no acknowledgment will be performed. The `NONE` strategy may be used
-for the protocols that do not support message acknowledgment. None of the methods in this guide have been configured to
-use the `NONE` acknowledgement strategy.
+[cols="30, 100", options="header"]
+|===
+| *Strategy*        | *Description*
+| None              | No acknowledgment will be performed. The `NONE` strategy may be used for the protocols that do not support message acknowledgment.
+| Pre-processing    | The message is acknowledged before the method processes the received message. Methods that use the `PRE_PROCESSING` or `POST_PROCESSING` acknowledgement strategy rely on the MicroProfile Reactive Messaging implementation of said strategies.
+| Post-processing   | If the acknowledgement strategy is set to `POST_PROCESSING`, the Reactive Messaging implementation will acknowledge the message depending on if the annotated method emits data.
+                        If the method emits data, the incoming message will be acknowledged once the outgoing message is acknowledged.
+                        If the method does not emit data, the incoming message will be acknowledged once the method or processing completes.
+| Manual            | The source code is responsible for the acknowledgement, typically by using the `Message.ack()` method. `MANUAL` acknowledgement is useful for when the required acknowledgement can not be accomplished by any other existing Reactive Messaging implementation, and is often used when the incoming message should be acknowledged after the outgoing message is acknowledged.
+|===
 
-=== PRE_PROCESSING Acknowledgement strategy
-
-If the acknowledgement strategy is set to `PRE_PROCESSING`, the message is acknowledged before the method processes the
-received message. Methods that use the `PRE_PROCESSING` or `POST_PROCESSING` acknowledgement strategy rely on the
-MicroProfile Reactive Messaging implementation of said strategies. None of the methods in this guide have been configured
-or defaults to using the `PRE_PROCESSING` acknowledgement strategy.
-
-=== POST_PROCESSING Acknowledgement strategy
-
-If the acknowledgement strategy is set to `POST_PROCESSING`, the Reactive Messaging implementation will acknowledge the
-message depending on if the annotated method emits data:
-
-    1. If the method emits data, the incoming message will be acknowledged once the outgoing message is acknowledged
-    2. If the method does not emit data, the incoming message will be acknowledged once the method or processing completes
-
-The `inventory` service contains two methods with the [hotspot=addSystemPropertyIncoming hotspot=systemLoadIncoming file=0]`@Incoming`
-annotation, the [hotspot=updateStatus file=0]`updateStatus()` and the [hotspot=getPropertyMessage file=0]`getPropertyMessage()`
-methods. Both methods have the same method signature, consuming a payload of an Object type, and returning void. The
-https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[Messaging acknowledgement^]
-table specifies that the default acknowledgement strategies applied to methods of that signature is the `POST_PROCESSING`
-strategy. Both methods use the incoming message to apply changes to the stored inventory of systems, and thus acts as a
-message processor. In this example, the `POST_PROCESSING` strategy would be best, as the acknowledgement should ensure that
-the message has been successfully processed. Since the method signature defaults to the `POST_PROCESSING` strategy,
-there is no need to explicitly define the acknowledgement strategy, and is therefore omitted from the method.
-
-=== MANUAL Acknowledgement strategy
-
-If the acknowledgement strategy is set to `MANUAL`, the source code is responsible for the acknowledgement, typically by
-using the `Message.ack()` method. `MANUAL` acknowledgement is useful for when the required acknowledgement can't be
-accomplished by any other existing Reactive Messaging implementation, and is often used when the incoming message should
-be acknowledged after the outgoing message is acknowledged.
+== Implementing the MANUAL acknowledgement strategy
 
 The `inventory` service sends a system property request to the `system` service, but does not verify if the system
 property is valid, therefore the verification is done in the `system` service. The message acknowledgement is handled
