@@ -31,9 +31,8 @@ Learn how to acknowledge messages using MicroProfile Reactive Messaging.
 
 == What you'll learn
 
-MicroProfile Reactive Messaging provides an easy way to handle messages in applications that process streams of events,
-and ensure that these messages are not lost in the event of a system failure by using the concept of acknowledgement.
-Acknowledgement differentiates between a message that
+Acknowledgements are a key concept in MicroProfile Reactive Messaging which ensure that messages are not lost in the
+event of a system failure. Acknowledgement differentiates between a message that
 has been delivered to the target service, and a message that has been processed and completed. Every message that gets sent
 must be acknowledged. By differentiating the two, any messages that have been delivered but not acknowledged due to a
 system failure can be sent again.
@@ -111,9 +110,18 @@ Here is a breakdown of the four acknowledgement strategies:
 
 == Implementing the MANUAL acknowledgement strategy
 
-The `inventory` service sends a system property request to the `system` service, but does not verify if the system
-property is valid, therefore the verification is done in the `system` service. The message acknowledgement is handled
-according to whether the system property request is valid or not.
+The `system` service contains the [hotspot=sendProperty file=1]`sendProperty` method which receives property requests
+from the `inventory` service. For each property request, if the property being requested is valid then it produces a
+property response with the value of the property. However, if the requested property doesn't exist, the request is ignored
+and no property response is produced.
+
+There is a key difference here, in the case where a property response is produced, the request is not finished processing
+until the response has been sent and safely stored, and it is only then that the incoming message should be acknowledged.
+However, in the case where the property requested doesn't exist, the method has already finished processing the request
+message so the message needs to be acknowledged immediately.
+
+This situation where a message either needs to be acknowledged immediately or some time later is one of the cases where
+the `MANUAL` acknowledgement strategy would be beneficial.
 
 Ensure that you are in the `start` directory.
 
