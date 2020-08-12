@@ -91,7 +91,8 @@ public class InventoryResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
     // tag::USPHeader[]
-    // This method sends a message and returns a CompletionStage which doesn't complete until the message is acknowledged
+    /* This method sends a message and returns a CompletionStage which doesn't
+        complete until the message is acknowledged */
     public CompletionStage<Response> updateSystemProperty(String propertyName) {
     // end::USPHeader[]
         logger.info("updateSystemProperty: " + propertyName);
@@ -104,11 +105,14 @@ public class InventoryResource {
         Message<String> message = Message.of(propertyName,
             // tag::acknowledgeAction[]
             () -> {
-                // This is the ack callback which runs when the outgoing message is acknowledged
-                // When the outgoing message is acknowledged, complete the "result" CompletableFuture
+                /* This is the ack callback which runs when the outgoing
+                    message is acknowledged. When the outgoing message is
+                    acknowledged, complete the "result" CompletableFuture */
                 result.complete(null);
-                // An ack callback has to return a CompletionStage which says when it's complete.
-                // There is no need for anything asynchronous, so a completed CompletionStage is returned to indicate that the work here is done
+                /* An ack callback has to return a CompletionStage which says
+                    when it's complete. There is no need for anything asynchronous,
+                    so a completed CompletionStage is returned to indicate that
+                    the work here is done */
                 return CompletableFuture.completedFuture(null);
             }
             // end::acknowledgeAction[]
@@ -117,8 +121,9 @@ public class InventoryResource {
         // Send the message
         propertyNameEmitter.onNext(message);
         // tag::returnResult[]
-        // Set up what should happen when the message is acknowledged and "result" is completed
-        // When "result" completes, the Response object is created with the status code and message
+        /* Set up what should happen when the message is acknowledged and "result"
+            is completed. When "result" completes, the Response object is created
+            with the status code and message */
         return result.thenApply(a -> Response
                 .status(Response.Status.OK)
                 .entity("Request successful for the " + propertyName + " property\n")
