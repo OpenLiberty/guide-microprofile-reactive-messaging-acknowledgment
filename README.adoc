@@ -81,8 +81,7 @@ Only methods that receive incoming messages and are annotated with `@Incoming` n
 that are only annotated with `@Outgoing` methods do not support acknowledgement.
 
 Different strategy defaults and supported acknowledgement for each supported signature could be found at the
-https://openliberty.io/docs/latest/reference/javadoc/microprofile-3.3-javadoc.html#package=org/eclipse/microprofile/reactive/messaging/package-frame.html&class=overview-summary.html[MicroProfile Reactive Messaging Javadoc^]
-table of the specification.
+https://openliberty.io/docs/latest/reference/javadoc/microprofile-3.3-javadoc.html#package=org/eclipse/microprofile/reactive/messaging/package-frame.html&class=overview-summary.html[MicroProfile Reactive Messaging Javadoc^].
 
 By default, all of the methods that require acknowledging messages are assigned the `POST_PROCESSING` strategy. If the
 acknowledgement strategy is set to POST_PROCESSING, the Reactive Messaging implementation will acknowledge the message
