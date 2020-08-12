@@ -73,42 +73,26 @@ SystemService.java
 include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
-MicroProfile Reactive Messaging consists of four acknowledgement strategies: `NONE`, `PRE_PROCESSING`, `POST_PROCESSING`,
-and `MANUAL`. Acknowledging messages is required in reactive applications. Messages are either acknowledged explicitly, or
-implicitly by the MicroProfile Reactive Messaging implementation.
+Acknowledging messages is required in reactive applications. Messages are either acknowledged explicitly, or
+implicitly by the MicroProfile Reactive Messaging implementation. Acknowledgement for the incoming messages is controlled
+by the `@Acknowledgment` annotation in the MicroProfile Reactive Messaging specification. If the `@Acknowledgement`
+annotation is not defined explicitly, the default acknowledgement strategy applies, and depends on the method signature.
+Only methods that receive incoming messages and are annotated with `@Incoming` need to acknowledge messages, methods
+that are only annotated with `@Outgoing` methods do not support acknowledgement.
 
-Acknowledgement for the incoming messages is controlled by the `@Acknowledgment` annotation in the MicroProfile Reactive
-Messaging specification. If the `@Acknowledgement` annotation is not defined explicitly, the default acknowledgement
-strategy applies, and depends on the method signature. Only methods that receive incoming messages and are annotated with
-`@Incoming` need to acknowledge messages, methods that are only annotated with `@Outgoing` methods do not support
-acknowledgement.
-
-Different defaults and supported acknowledgement for each supported signature could be found at the
-https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html#_message_acknowledgement[Messaging acknowledgement^]
+Different strategy defaults and supported acknowledgement for each supported signature could be found at the
+https://openliberty.io/docs/latest/reference/javadoc/microprofile-3.3-javadoc.html#package=org/eclipse/microprofile/reactive/messaging/package-frame.html&class=overview-summary.html[MicroProfile Reactive Messaging Javadoc^]
 table of the specification.
 
-Here is a breakdown of the four acknowledgement strategies:
+By default, all of the methods that require acknowledging messages are assigned the `POST_PROCESSING` strategy. If the
+acknowledgement strategy is set to POST_PROCESSING, the Reactive Messaging implementation will acknowledge the message
+depending on if the annotated method emits data:
 
-[cols="30, 100", options="header"]
-|===
-| *Strategy*        | *Description*
-| None              | No acknowledgment will be performed. The `NONE` strategy may be used for the protocols that do not
-                        support message acknowledgment.
-| Pre-processing    | The message is acknowledged before the method processes the received message. Methods that use the
-                        `PRE_PROCESSING` or `POST_PROCESSING` acknowledgement strategy rely on the MicroProfile Reactive
-                        Messaging implementation of said strategies.
-| Post-processing   | If the acknowledgement strategy is set to `POST_PROCESSING`, the Reactive Messaging implementation
-                        will acknowledge the message depending on if the annotated method emits data. If the method emits
-                        data, the incoming message will be acknowledged once the outgoing message is acknowledged. If the
-                        method does not emit data, the incoming message will be acknowledged once the method or processing
-                        completes.
-| Manual            | The source code is responsible for the acknowledgement, typically by using the `Message.ack()` method.
-                        `MANUAL` acknowledgement is useful for when the required acknowledgement can not be accomplished
-                        by any other existing Reactive Messaging implementation, and is often used when the incoming message
-                        should be acknowledged after the outgoing message is acknowledged.
-|===
+    1. If the method emits data, the incoming message will be acknowledged once the outgoing message is acknowledged.
+    2. If the method does not emit data, the incoming message will be acknowledged once the method or processing completes.
 
-== Implementing the MANUAL acknowledgement strategy
+The acknowledgement strategy to use for a method depends on the use case of said method. The `system` service contains
+a method which defaults to the `POST_PROCESSING` strategy. This is insufficient and does not produce the desired behaviour.
 
 The `system` service contains the [hotspot=sendProperty file=1]`sendProperty` method which receives property requests
 from the `inventory` service. For each property request, if the property being requested is valid then it produces a
@@ -122,6 +106,8 @@ message so the message needs to be acknowledged immediately.
 
 This situation where a message either needs to be acknowledged immediately or some time later is one of the cases where
 the `MANUAL` acknowledgement strategy would be beneficial.
+
+== Implementing the MANUAL acknowledgement strategy
 
 Ensure that you are in the `start` directory.
 
@@ -146,13 +132,6 @@ type `String`, instead of just a string, to enable acknowledgement. Then, the me
         the incoming message when the sent message has been acknowledged.
 
 == Waiting for a message to be acknowledged
-
-// file 0
-InventoryResource.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
-----
-include::finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java[]
-----
 
 The `inventory` service contains an endpoint that accepts `PUT` requests. When a `PUT` request is made to the `inventory`
 service with a request body that contains a system property, the `inventory` service will send a message to the `system`
