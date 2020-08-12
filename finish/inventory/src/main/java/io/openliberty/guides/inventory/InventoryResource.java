@@ -90,14 +90,14 @@ public class InventoryResource {
     @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    // tag::USPHeader[]
     /* This method sends a message and returns a CompletionStage which doesn't
         complete until the message is acknowledged */
+    // tag::USPHeader[]
     public CompletionStage<Response> updateSystemProperty(String propertyName) {
     // end::USPHeader[]
         logger.info("updateSystemProperty: " + propertyName);
-        // tag::CompletableFuture[]
         // First, create an uncompleted CompletableFuture named "result"
+        // tag::CompletableFuture[]
         CompletableFuture<Void> result = new CompletableFuture<>();
         // end::CompletableFuture[]
 
@@ -120,10 +120,10 @@ public class InventoryResource {
 
         // Send the message
         propertyNameEmitter.onNext(message);
-        // tag::returnResult[]
         /* Set up what should happen when the message is acknowledged and "result"
             is completed. When "result" completes, the Response object is created
             with the status code and message */
+        // tag::returnResult[]
         return result.thenApply(a -> Response
                 .status(Response.Status.OK)
                 .entity("Request successful for the " + propertyName + " property\n")
