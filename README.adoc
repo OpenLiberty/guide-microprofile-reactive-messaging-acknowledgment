@@ -60,17 +60,10 @@ include::{common-includes}/gitclone.adoc[]
 == MicroProfile Reactive Messaging Acknowledgement Strategies
 
 // file 0
-InventoryResource.java
+start/SystemService.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java[]
-----
-
-// file 1
-SystemService.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
-----
-include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
+include::start/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
 Acknowledging messages is required in reactive applications. Messages are either acknowledged explicitly, or
@@ -84,7 +77,7 @@ Different strategy defaults and supported acknowledgement for each supported sig
 https://openliberty.io/docs/latest/reference/javadoc/microprofile-3.3-javadoc.html#package=org/eclipse/microprofile/reactive/messaging/package-frame.html&class=overview-summary.html[MicroProfile Reactive Messaging Javadoc^].
 
 By default, all of the methods that require acknowledging messages are assigned the `POST_PROCESSING` strategy. If the
-acknowledgement strategy is set to POST_PROCESSING, the Reactive Messaging implementation will acknowledge the message
+acknowledgement strategy is set to `POST_PROCESSING`, the Reactive Messaging implementation will acknowledge the message
 depending on if the annotated method emits data:
 
     1. If the method emits data, the incoming message will be acknowledged once the outgoing message is acknowledged.
@@ -93,10 +86,11 @@ depending on if the annotated method emits data:
 The acknowledgement strategy to use for a method depends on the use case of said method. The `system` service contains
 a method which defaults to the `POST_PROCESSING` strategy. This is insufficient and does not produce the desired behaviour.
 
-The `system` service contains the [hotspot=sendProperty file=1]`sendProperty` method which receives property requests
-from the `inventory` service. For each property request, if the property being requested is valid then it produces a
-property response with the value of the property. However, if the requested property doesn't exist, the request is ignored
-and no property response is produced.
+The `system` service contains the [hotspot=sendProperty file=0]`sendProperty` method which receives property requests
+from the `inventory` service. For each property request, if the property being requested is valid then it
+[hotspot=validReturn file=0]`returns` a property response with the value of the property. However, if the requested
+property [hotspot=null file=0]`doesn't exist`, the request is ignored and no property response is
+[hotspot=returnNull file=0]`returned`.
 
 There is a key difference here, in the case where a property response is produced, the request is not finished processing
 until the response has been sent and safely stored, and it is only then that the incoming message should be acknowledged.
@@ -108,29 +102,43 @@ the `MANUAL` acknowledgement strategy would be beneficial.
 
 == Implementing the MANUAL acknowledgement strategy
 
+// file 0
+finish/SystemService.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
+----
+
 Ensure that you are in the `start` directory.
 
-[role="code_command hotspot file=1", subs="quotes"]
+[role="code_command hotspot file=0", subs="quotes"]
 ----
 #Replace the `SystemService` class.#
 `system/src/main/java/io/openliberty/guides/system/SystemService.java`
 ----
 
 The changes include implementing a `MANUAL` message acknowledgement strategy that fits the method processing requirements.
-First, the method is annotated with the [hotspot=ackAnnotation file=1]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)`
+First, the method is annotated with the [hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)`
 annotation, and therefore must manually acknowledge the message. Only incoming messages can be acknowledged, so the method
-expects an incoming message. The method parameter is updated to receive a [hotspot=methodSignature file=1]`Message` of
+expects an incoming message. The method parameter is updated to receive a [hotspot=methodSignature file=0]`Message` of
 type `String`, instead of just a string, to enable acknowledgement. Then, the message
-[hotspot=propertyValue file=1]`payload` is extracted and checked for validity. There are two outcomes:
+[hotspot=propertyValue file=0]`payload` is extracted and checked for validity. There are two outcomes:
 
-    1. If the system property is [hotspot=invalid file=1]`invalid`, the method [hotspot=propertyMessageAck file=1]`acknowledges`
-        the incoming message and [hotspot=emptyReactiveStream file=1]`returns` an empty reactive stream. The processing is
+    1. If the system property is [hotspot=invalid file=0]`invalid`, the method [hotspot=propertyMessageAck file=0]`acknowledges`
+        the incoming message and [hotspot=emptyReactiveStream file=0]`returns` an empty reactive stream. The processing is
         complete.
-    2. If the system property is valid, the method creates a [hotspot=returnMessage file=1]`message` with
+    2. If the system property is valid, the method creates a [hotspot=returnMessage file=0]`message` with
         the value of the requested system property, and sends it to the proper channel. The method will only acknowledge
         the incoming message when the sent message has been acknowledged.
 
 == Waiting for a message to be acknowledged
+
+// file 0
+InventoryResource.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java[]
+----
 
 The `inventory` service contains an endpoint that accepts `PUT` requests. When a `PUT` request is made to the `inventory`
 service with a request body that contains a system property, the `inventory` service will send a message to the `system`

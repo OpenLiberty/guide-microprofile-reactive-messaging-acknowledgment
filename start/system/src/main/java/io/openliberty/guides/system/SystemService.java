@@ -56,17 +56,25 @@ public class SystemService {
                         osMean.getSystemLoadAverage())));
     }
 
+    // tag::sendProperty[]
     @Incoming("propertyRequest")
     @Outgoing("propertyResponse")
     public PropertyMessage sendProperty(String propertyName) {
         logger.info("sendProperty: " + propertyName);
         String propertyValue = System.getProperty(propertyName);
+        // tag::null[]
         if (propertyValue == null) {
             logger.warning(propertyName + " is not System property.");
+            // tag::returnNull[]
             return null;
+            // end::returnNull[]
         }
+        // end::null[]
+        // tag::validReturn[]
         return new PropertyMessage(getHostname(),
                 propertyName,
                 System.getProperty(propertyName, "unknown"));
+        // end::validReturn[]
     }
+    // end::sendProperty[]
 }
