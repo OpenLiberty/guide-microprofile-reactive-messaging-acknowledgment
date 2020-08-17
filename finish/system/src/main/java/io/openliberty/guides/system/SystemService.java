@@ -60,6 +60,7 @@ public class SystemService {
                         osMean.getSystemLoadAverage())));
     }
 
+    // tag::sendProperty[]
     @Incoming("propertyRequest")
     @Outgoing("propertyResponse")
     // tag::ackAnnotation[]
@@ -96,4 +97,5 @@ public class SystemService {
         return ReactiveStreams.of(message);
         // end::returnMessage[]
     }
+    // end::sendProperty[]
 }
