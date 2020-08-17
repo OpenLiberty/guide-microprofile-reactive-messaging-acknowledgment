@@ -72,7 +72,8 @@ implicitly by MicroProfile Reactive Messaging (MPRM). Acknowledgement for the in
 by the `@Acknowledgment` annotation in MPRM. If the `@Acknowledgement`
 annotation is not defined explicitly, the default acknowledgement strategy applies, and depends on the method signature.
 Only methods that receive incoming messages and are annotated with `@Incoming` need to acknowledge messages, methods
-that are only annotated with `@Outgoing` do not support acknowledgement.
+that are only annotated with `@Outgoing` do not need to worry about acknowledging messages since no messages are being
+received, and the MPRM acknowledgement requirement is that every message _received_ is acknowledged.
 
 By default, all of the methods that require acknowledging messages are assigned the `POST_PROCESSING` strategy. If the
 acknowledgement strategy is set to `POST_PROCESSING`, MPRM acknowledges the message
