@@ -75,7 +75,8 @@ Only methods that receive incoming messages and are annotated with `@Incoming` n
 that are only annotated with `@Outgoing` do not need to worry about acknowledging messages since no messages are being
 received, and the MPRM acknowledgement requirement is that every message _received_ is acknowledged.
 
-By default, all of the methods that require acknowledging messages are assigned the `POST_PROCESSING` strategy. If the
+Based on the method signature, all of the methods in this application that require acknowledging messages are assigned
+the `POST_PROCESSING` strategy by default. If the
 acknowledgement strategy is set to `POST_PROCESSING`, MPRM acknowledges the message
 depending on if the annotated method emits data:
 
