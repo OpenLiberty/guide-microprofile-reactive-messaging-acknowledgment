@@ -91,7 +91,7 @@ property [hotspot=null file=0]`doesn't exist`, the request is ignored and no pro
 [hotspot=returnEmpty file=0]`returned`.
 
 There is a key difference here, in the case where a property response is produced, the request is not finished processing
-until the response has been sent and safely stored, and it is only then that the incoming message should be acknowledged.
+until the response has been sent and safely stored by the Kafka broker, and it is only then that the incoming message should be acknowledged.
 However, in the case where the property requested doesn't exist, the method has already finished processing the request
 message so the message needs to be acknowledged immediately.
 
