@@ -83,6 +83,12 @@ depending on if the annotated method emits data:
     - If the method emits data, the incoming message is acknowledged once the outgoing message is acknowledged.
     - If the method does not emit data, the incoming message is acknowledged once the method or processing completes.
 
+This is important since the `POST_PROCESSING` strategy fulfils the requirement that messages shouldn't be acknowledged
+until after the message is fully processed. This is beneficial in situations where there is a need for the
+reliability of messages not getting lost. Where the `POST_PROCESSING` acknowledgement strategy can't be used, the `MANUAL` strategy can
+be used with the goal of fulfilling the same requirement. In situations where message reliability is not important, and
+the loss of messages is accepted, the `PRE_PROCESSING` strategy may be appropriate.
+
 The only method in the guide that does not default to the `POST_PROCESSING` strategy is the
 [hotspot=sendProperty file=0]`sendProperty` method in the `system` service. The [hotspot=sendProperty file=0]`sendProperty`
 method receives property requests from the `inventory` service. For each property request, if the property being requested
