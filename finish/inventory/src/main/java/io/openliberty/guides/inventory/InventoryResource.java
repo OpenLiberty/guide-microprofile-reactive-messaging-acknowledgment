@@ -104,6 +104,7 @@ public class InventoryResource {
         // end::CompletableFuture[]
 
         // Create a message which holds the payload
+        // tag::message[]
         Message<String> message = Message.of(
                 // tag::payload[]
                 propertyName,
@@ -122,6 +123,7 @@ public class InventoryResource {
                 }
                 // end::acknowledgeAction[]
         );
+        // end::message[]
 
         // Send the message
         propertyNameEmitter.onNext(message);
