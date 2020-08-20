@@ -32,9 +32,9 @@ Learn how to acknowledge messages using MicroProfile Reactive Messaging.
 == What you'll learn
 
 MicroProfile Reactive Messaging provides a reliable way to handle messages in reactive applications, ensuring that these
-messages are not lost, by acknowledging messages that have been delivered to the target
-server. Every message that gets sent out must be acknowledged. This ensures that any messages that have been delivered
-to the target service but not acknowledged (e.g. due to a system failure) can be sent again.
+messages are not lost, by requiring that messages that have been delivered to the target
+server are acknowledged once they have been processed. Every message that gets sent out must be acknowledged. This ensures that any messages that have been delivered
+to the target service but not processed (e.g. due to a system failure) can be identified and sent again.
 
 The application in this guide consists of two microservices, `system` and `inventory`. Every 15 seconds, the `system`
 microservice calculates and publishes events that contain its current average system load. The `inventory` microservice
