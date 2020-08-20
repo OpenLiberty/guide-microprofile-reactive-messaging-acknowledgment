@@ -68,16 +68,16 @@ include::start/system/src/main/java/io/openliberty/guides/system/SystemService.j
 ----
 
 Acknowledging messages is required in reactive applications. Messages are either acknowledged explicitly, or
-implicitly by MicroProfile Reactive Messaging (MPRM). Acknowledgement for the incoming messages is controlled
-by the `@Acknowledgment` annotation in MPRM. If the `@Acknowledgement`
+implicitly by MicroProfile Reactive Messaging. Acknowledgement for the incoming messages is controlled
+by the `@Acknowledgment` annotation in MicroProfile Reactive Messaging. If the `@Acknowledgement`
 annotation is not defined explicitly, the default acknowledgement strategy applies, and depends on the method signature.
 Only methods that receive incoming messages and are annotated with `@Incoming` need to acknowledge messages, methods
 that are only annotated with `@Outgoing` do not need to worry about acknowledging messages since no messages are being
-received, and the MPRM acknowledgement requirement is that every message _received_ is acknowledged.
+received, and the MicroProfile Reactive Messaging acknowledgement requirement is that every message _received_ is acknowledged.
 
 Based on the method signature, almost all of the methods in this application that require acknowledging messages are assigned
 the `POST_PROCESSING` strategy by default. If the
-acknowledgement strategy is set to `POST_PROCESSING`, MPRM acknowledges the message
+acknowledgement strategy is set to `POST_PROCESSING`, MicroProfile Reactive Messaging acknowledges the message
 depending on if the annotated method emits data:
 
     - If the method emits data, the incoming message is acknowledged once the outgoing message is acknowledged.
