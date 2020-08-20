@@ -49,7 +49,9 @@ import io.reactivex.rxjava3.core.FlowableEmitter;
 public class InventoryResource {
 
     private static Logger logger = Logger.getLogger(InventoryResource.class.getName());
+    // tag::propertyNameEmitter[]
     private FlowableEmitter<Message<String>> propertyNameEmitter;
+    // end::propertyNameEmitter[]
 
     @Inject
     private InventoryManager manager;
@@ -102,20 +104,23 @@ public class InventoryResource {
         // end::CompletableFuture[]
 
         // Create a message which holds the payload
-        Message<String> message = Message.of(propertyName,
-            // tag::acknowledgeAction[]
-            () -> {
-                /* This is the ack callback which runs when the outgoing
-                    message is acknowledged. When the outgoing message is
-                    acknowledged, complete the "result" CompletableFuture */
-                result.complete(null);
-                /* An ack callback has to return a CompletionStage which says
-                    when it's complete. There is no need for anything asynchronous,
-                    so a completed CompletionStage is returned to indicate that
-                    the work here is done */
-                return CompletableFuture.completedFuture(null);
-            }
-            // end::acknowledgeAction[]
+        Message<String> message = Message.of(
+                // tag::payload[]
+                propertyName,
+                // end::payload[]
+                // tag::acknowledgeAction[]
+                () -> {
+                    /* This is the ack callback which runs when the outgoing
+                        message is acknowledged. When the outgoing message is
+                        acknowledged, complete the "result" CompletableFuture */
+                    result.complete(null);
+                    /* An ack callback has to return a CompletionStage which says
+                        when it's complete. There is no need for anything asynchronous,
+                        so a completed CompletionStage is returned to indicate that
+                        the work here is done */
+                    return CompletableFuture.completedFuture(null);
+                }
+                // end::acknowledgeAction[]
         );
 
         // Send the message

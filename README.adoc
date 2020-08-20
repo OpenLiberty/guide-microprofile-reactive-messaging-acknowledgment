@@ -83,7 +83,7 @@ depending on if the annotated method emits data:
     - If the method emits data, the incoming message is acknowledged once the outgoing message is acknowledged.
     - If the method does not emit data, the incoming message is acknowledged once the method or processing completes.
 
-This is important since the `POST_PROCESSING` strategy fulfils the requirement that messages shouldn't be acknowledged
+It's important that the methods use the `POST_PROCESSING` strategy because it fulfils the requirement that messages shouldn't be acknowledged
 until after the message is fully processed. This is beneficial in situations where there is a need for the
 reliability of messages not getting lost. Where the `POST_PROCESSING` acknowledgement strategy can't be used, the `MANUAL` strategy can
 be used with the goal of fulfilling the same requirement. In situations where message reliability is not important, and
@@ -115,8 +115,8 @@ include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.
 
 Ensure that you are in the `start` directory.
 
-Update the `SystemService` class to use the `MANUAL` acknowledgement strategy, which fits the method processing
-requirements better than the default `POST_PROCESSING` strategy.
+Update the `SystemService.sendProperty` method to use the `MANUAL` acknowledgement strategy, which fits the method processing
+requirements better than the default `PRE_PROCESSING` strategy.
 
 [role="code_command hotspot file=0", subs="quotes"]
 ----
@@ -124,12 +124,11 @@ requirements better than the default `POST_PROCESSING` strategy.
 `system/src/main/java/io/openliberty/guides/system/SystemService.java`
 ----
 
-The [hotspot=sendProperty file=0]`sendProperty` method is annotated with the
-[hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)`
-annotation, and therefore must manually acknowledge the message. Only incoming messages can be acknowledged, so the method
-expects an incoming message. The method parameter is updated to receive a [hotspot=methodSignature file=0]`Message` of
-type `String`, instead of just a string, to enable acknowledgement. Then, the message
-[hotspot=propertyValue file=0]`payload` is extracted and checked for validity. There are two outcomes:
+The [hotspot=sendProperty file=0]`sendProperty` method needs to manually acknowledge the incoming messages, so it is
+annotated with the [hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)`
+annotation. The annotation sets the method up to expect an incoming message, so the method parameter is updated to receive
+and return a [hotspot=methodSignature file=0]`Message` of type `String`, instead of just a string, to fit the requirements of
+acknowledgement. Then, the message [hotspot=propertyValue file=0]`payload` is extracted and checked for validity. There are two outcomes:
 
     - If the system property is [hotspot=invalid file=0]`invalid`, the method [hotspot=propertyMessageAck file=0]`acknowledges`
         the incoming message and [hotspot=emptyReactiveStream file=0]`returns` an empty reactive stream. The processing is
@@ -159,12 +158,15 @@ message has been acknowledged.
 `inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java`
 ----
 
-Acknowledgement can only be done on incoming messages, so the [hotspot=sendPropertyName file=0]`sendPropertyName()` method
-is updated to now return a [hotspot=SPMHeader file=0]`Message<String>` instead of just a `String`. The
-[hotspot=updateSystemProperty file=0]`updateSystemProperty()` method now returns a
+The [hotspot=sendPropertyName file=0]`sendPropertyName()` method is updated to return a
+[hotspot=SPMHeader file=0]`Message<String>` instead of just a `String`. This allows the method to set a callback which
+will run once the outgoing message is acknowledged. In addition to updating the [hotspot=sendPropertyName file=0]`sendPropertyName()`
+method, the [hotspot=propertyNameEmitter file=0]`propertyNameEmitter` `FlowableEmitter` variable is updated to send a `Message<String>`.
+The [hotspot=updateSystemProperty file=0]`updateSystemProperty()` method now returns a
 [hotspot=USPHeader file=0]`CompletionStage` wrapped around a Response. This allows for a response object
 to be returned after the outgoing message is acknowledged. The outgoing message is created with the requested property
-name as the payload, and an action to be executed once the message is acknowledged. The method creates a
+name as the [hotspot=payload file=0]`payload`, and an acknowledgement [hotspot=acknowledgeAction file=0]callback to execute
+an action once the message is acknowledged. The method creates a
 [hotspot=CompletableFuture file=0]`CompletableFuture` variable that returns a [hotspot=returnResult file=0]`200`
 response code once the variable is completed. The `CompletableFuture` variable is set to complete once the outgoing message
 is [hotspot=acknowledgeAction file=0]`acknowledged`.
