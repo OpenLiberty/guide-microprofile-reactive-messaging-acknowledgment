@@ -19,11 +19,9 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.processing.Completion;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
@@ -93,7 +91,6 @@ public class InventoryServiceIT {
     // Need a MST to support rest client to return CompletionStage
     //@Test
     public void testUpdateSystemProperty() throws ExecutionException, InterruptedException {
-
         CountDownLatch countDown = new CountDownLatch(1);
         int responseStatus[] = new int[] {0};
         inventoryResource.updateSystemProperty("os.name").thenAcceptAsync(r -> {

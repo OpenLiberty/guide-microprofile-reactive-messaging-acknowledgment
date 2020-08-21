@@ -19,11 +19,9 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.processing.Completion;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
