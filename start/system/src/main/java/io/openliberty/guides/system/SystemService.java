@@ -23,6 +23,8 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
+import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
+import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.reactivestreams.Publisher;
 
 import io.openliberty.guides.models.PropertyMessage;
@@ -56,17 +58,27 @@ public class SystemService {
                         osMean.getSystemLoadAverage())));
     }
 
+    // tag::sendProperty[]
     @Incoming("propertyRequest")
     @Outgoing("propertyResponse")
-    public PropertyMessage sendProperty(String propertyName) {
+    public PublisherBuilder<PropertyMessage> sendProperty(String propertyName) {
         logger.info("sendProperty: " + propertyName);
         String propertyValue = System.getProperty(propertyName);
+        // tag::null[]
         if (propertyValue == null) {
             logger.warning(propertyName + " is not System property.");
-            return null;
+            // tag::returnEmpty[]
+            return ReactiveStreams.empty();
+            // end::returnEmpty[]
         }
-        return new PropertyMessage(getHostname(),
-                propertyName,
-                System.getProperty(propertyName, "unknown"));
+        // end::null[]
+        // tag::validReturn[]
+        PropertyMessage message =
+                new PropertyMessage(getHostname(),
+                                    propertyName,
+                                    System.getProperty(propertyName, "unknown"));
+        return ReactiveStreams.of(message);
+        // end::validReturn[]
     }
+    // end::sendProperty[]
 }
