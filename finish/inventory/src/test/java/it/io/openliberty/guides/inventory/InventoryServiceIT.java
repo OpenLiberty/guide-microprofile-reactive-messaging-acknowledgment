@@ -90,7 +90,7 @@ public class InventoryServiceIT {
         }
     }
 
-    // Need a MST to support rest client return CompletionStage
+    // Need a MST to support rest client to return CompletionStage
     //@Test
     public void testGetProperty() throws ExecutionException, InterruptedException {
         CompletionStage<Response> response = inventoryResource.updateSystemProperty("os.name");
