@@ -92,12 +92,21 @@ public class InventoryServiceIT {
 
     // Need a MST to support rest client to return CompletionStage
     //@Test
-    public void testGetProperty() throws ExecutionException, InterruptedException {
-        CompletionStage<Response> response = inventoryResource.updateSystemProperty("os.name");
-        ((CompletableFuture)response).join();
-        int responseStatus = response.toCompletableFuture().get().getStatus();
+    public void testUpdateSystemProperty() throws ExecutionException, InterruptedException {
+        CountDownLatch countDown = new CountDownLatch(1);
+        int responseStatus[] = new int[] {0};
+        inventoryResource.updateSystemProperty("os.name").thenAcceptAsync(r -> {
+            responseStatus[0] = r.getStatus();
+            countDown.countDown();
+        });
 
-        Assertions.assertEquals(200, responseStatus,
+        try {
+            countDown.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Assertions.assertEquals(200, responseStatus[0],
                 "Response should be 200");
 
         ConsumerRecords<String, String> records = propertyConsumer.poll(Duration.ofMillis(30*1000));
@@ -108,6 +117,7 @@ public class InventoryServiceIT {
             System.out.println(p);
             assertEquals("os.name", p);
         }
+        
         propertyConsumer.commitAsync();
     }
 }
