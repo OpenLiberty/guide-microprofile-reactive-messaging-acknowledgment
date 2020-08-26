@@ -88,7 +88,8 @@ public class InventoryServiceIT {
         }
     }
 
-    // Need a MST to support rest client to return CompletionStage
+    // Disabled the following test because MST RESTClient does not support CompletionStage return type.
+    // See https://github.com/MicroShed/microshed-testing/issues/213
     //@Test
     public void testUpdateSystemProperty() throws ExecutionException, InterruptedException {
         CountDownLatch countDown = new CountDownLatch(1);
