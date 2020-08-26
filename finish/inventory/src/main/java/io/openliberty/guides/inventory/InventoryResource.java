@@ -92,18 +92,18 @@ public class InventoryResource {
     @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    /* This method sends a message and returns a CompletionStage which doesn't
-        complete until the message is acknowledged */
+    /* This method sends a message and returns a CompletionStage that doesn't
+        complete until the message is acknowledged. */
     // tag::USPHeader[]
     public CompletionStage<Response> updateSystemProperty(String propertyName) {
     // end::USPHeader[]
         logger.info("updateSystemProperty: " + propertyName);
-        // First, create an uncompleted CompletableFuture named "result"
+        // First, create an incomplete CompletableFuture named "result".
         // tag::CompletableFuture[]
         CompletableFuture<Void> result = new CompletableFuture<>();
         // end::CompletableFuture[]
 
-        // Create a message which holds the payload
+        // Create a message that holds the payload.
         // tag::message[]
         Message<String> message = Message.of(
                 // tag::payload[]
@@ -111,14 +111,14 @@ public class InventoryResource {
                 // end::payload[]
                 // tag::acknowledgeAction[]
                 () -> {
-                    /* This is the ack callback which runs when the outgoing
-                        message is acknowledged. When the outgoing message is
-                        acknowledged, complete the "result" CompletableFuture */
+                    /* This is the ack callback, which runs when the outgoing
+                        message is acknowledged. After the outgoing message is
+                        acknowledged, complete the "result" CompletableFuture. */
                     result.complete(null);
-                    /* An ack callback has to return a CompletionStage which says
-                        when it's complete. There is no need for anything asynchronous,
-                        so a completed CompletionStage is returned to indicate that
-                        the work here is done */
+                    /* An ack callback must return a CompletionStage that says
+                        when it's complete. Asynchronous processing isn't necessary 
+                        so a completed CompletionStage is returned to indicate that 
+                        the work here is done. */
                     return CompletableFuture.completedFuture(null);
                 }
                 // end::acknowledgeAction[]
@@ -127,9 +127,9 @@ public class InventoryResource {
 
         // Send the message
         propertyNameEmitter.onNext(message);
-        /* Set up what should happen when the message is acknowledged and "result"
-            is completed. When "result" completes, the Response object is created
-            with the status code and message */
+        /* Set up what happens when the message is acknowledged and the "result"
+            CompletableFuture is completed. When "result" completes, the Response 
+            object is created with the status code and message. */
         // tag::returnResult[]
         return result.thenApply(a -> Response
                 .status(Response.Status.OK)
