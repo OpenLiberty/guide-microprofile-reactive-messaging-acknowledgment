@@ -6,20 +6,20 @@
 // Contributors:
 //     IBM Corporation
 //
-:projectid: microprofile-reactive-messaging-acknowledgement
+:projectid: microprofile-reactive-messaging-acknowledgment
 :page-layout: guide-multipane
 :page-duration: 25 minutes
 :page-releasedate: 2020-08-27
 :page-guide-category: microprofile
 :page-essential: false
-:page-description: Learn how to use MicroProfile Reactive Messaging acknowledgement strategies to acknowledge messages.
+:page-description: Learn how to use MicroProfile Reactive Messaging acknowledgment strategies to acknowledge messages.
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Jakarta EE', 'Microservices']
 :page-related-guides: ['microprofile-reactive-messaging','microprofile-reactive-messaging-rest','reactive-messaging-sse','reactive-service-testing','microprofile-rest-client-async']
 :page-permalink: /guides/{projectid}
 :imagesdir: /img/guide/{projectid}
 :page-seo-title: Acknowledging messages in Java microservices using MicroProfile Reactive Messaging
-:page-seo-description: A getting started tutorial with examples on how to acknowledge messages in asynchronous Java microservices using different MicroProfile Reactive Messaging acknowledgement strategies.
+:page-seo-description: A getting started tutorial with examples on how to acknowledge messages in asynchronous Java microservices using different MicroProfile Reactive Messaging acknowledgment strategies.
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/dev
 :source-highlighter: prettify
 = Acknowledging messages using MicroProfile Reactive Messaging
@@ -27,27 +27,26 @@
 [.hidden]
 NOTE: This repository contains the guide documentation source. To view the guide in published form, view it on the https://openliberty.io/guides/{projectid}.html[Open Liberty website].   
 
-Learn how to acknowledge messages using MicroProfile Reactive Messaging.
+Learn how to acknowledge messages by using MicroProfile Reactive Messaging.
 
 == What you'll learn
 
-MicroProfile Reactive Messaging provides a reliable way to handle messages in reactive applications, ensuring that these
-messages are not lost, by requiring that messages that have been delivered to the target
-server are acknowledged once they have been processed. Every message that gets sent out must be acknowledged. This ensures that any messages that have been delivered
-to the target service but not processed (e.g. due to a system failure) can be identified and sent again.
+MicroProfile Reactive Messaging provides a reliable way to handle messages in reactive applications. MicroProfile Reactive
+Messaging ensures that messages aren't lost by requiring that messages that were delivered to the target server are acknowledged
+after they are processed. Every message that gets sent out must be acknowledged. This way, any messages that were delivered
+to the target service but not processed, for example, due to a system failure, can be identified and sent again.
 
 The application in this guide consists of two microservices, `system` and `inventory`. Every 15 seconds, the `system`
 microservice calculates and publishes events that contain its current average system load. The `inventory` microservice
 subscribes to that information so that it can keep an updated list of all the systems and their current system loads.
-The current inventory of systems can be accessed via the `/systems` REST endpoint. The following diagram showcases the
-application used in this guide:
+You can get the current inventory of systems by accessing the `/systems` REST endpoint. The following diagram depicts
+the application that is used in this guide:
 
 image::reactive-messaging-system-inventory-rest.png[Reactive system inventory, align="center"]
 
-You will explore the acknowledgement
-strategies available using MicroProfile Reactive Messaging, and implement your own manual acknowledgement strategy.
-You can learn more about how the reactive Java services used in this guide work by checking out the
-https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
+You will explore the acknowledgment strategies that are available with MicroProfile Reactive Messaging, and you'll implement
+your own manual acknowledgment strategy. To learn more about how the reactive Java services used in this guide work, check
+out the https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
 
 == Additional prerequisites
 
@@ -58,7 +57,7 @@ An installation of Apache Kafka is provided in another Docker container.
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
-== Choosing an acknowledgement strategy
+== Choosing an acknowledgment strategy
 
 // file 0
 start/SystemService.java
@@ -67,44 +66,44 @@ start/SystemService.java
 include::start/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
-Acknowledging messages is required in reactive applications. Messages are either acknowledged explicitly, or
-implicitly by MicroProfile Reactive Messaging. Acknowledgement for the incoming messages is controlled
-by the `@Acknowledgment` annotation in MicroProfile Reactive Messaging. If the `@Acknowledgement`
-annotation is not defined explicitly, the default acknowledgement strategy applies, and depends on the method signature.
-Only methods that receive incoming messages and are annotated with `@Incoming` need to acknowledge messages, methods
-that are only annotated with `@Outgoing` do not need to worry about acknowledging messages since no messages are being
-received, and the MicroProfile Reactive Messaging acknowledgement requirement is that every message _received_ is acknowledged.
+Messages must be acknowledged in reactive applications. Messages are either acknowledged explicitly, or messages are acknowledged
+implicitly by MicroProfile Reactive Messaging. Acknowledgment for incoming messages is controlled by the `@Acknowledgment`
+annotation in MicroProfile Reactive Messaging. If the `@Acknowledgment` annotation isn't explicitly defined, then the
+default acknowledgment strategy applies, which depends on the method signature. Only methods that receive incoming messages
+and are annotated with the `@Incoming` annotation must acknowledge messages. Methods that are annotated only with the
+`@Outgoing` annotation don't need to acknowledge messages because messages aren't being received and MicroProfile Reactive
+Messaging requires only that _received_ messages are acknowledged.
 
-Based on the method signature, almost all of the methods in this application that require acknowledging messages are assigned
-the `POST_PROCESSING` strategy by default. If the
-acknowledgement strategy is set to `POST_PROCESSING`, MicroProfile Reactive Messaging acknowledges the message
-depending on if the annotated method emits data:
+Almost all of the methods in this application that require message acknowledgment are assigned the `POST_PROCESSING` strategy
+by default. If the acknowledgment strategy is set to `POST_PROCESSING`, then MicroProfile Reactive Messaging acknowledges
+the message based on whether the annotated method emits data:
 
-    - If the method emits data, the incoming message is acknowledged once the outgoing message is acknowledged.
-    - If the method does not emit data, the incoming message is acknowledged once the method or processing completes.
+    - If the method emits data, the incoming message is acknowledged after the outgoing message is acknowledged.
+    - If the method doesn't emit data, the incoming message is acknowledged after the method or processing completes.
 
-It's important that the methods use the `POST_PROCESSING` strategy because it fulfils the requirement that messages shouldn't be acknowledged
-until after the message is fully processed. This is beneficial in situations where there is a need for the
-reliability of messages not getting lost. Where the `POST_PROCESSING` acknowledgement strategy can't be used, the `MANUAL` strategy can
-be used with the goal of fulfilling the same requirement. In situations where message reliability is not important, and
-the loss of messages is accepted, the `PRE_PROCESSING` strategy may be appropriate.
+It’s important that the methods use the `POST_PROCESSING` strategy because it fulfills the requirement that a message isn't
+acknowledged until after the message is fully processed. This processing strategy is beneficial in situations where messages
+must reliably not get lost. When the `POST_PROCESSING` acknowledgment strategy can’t be used, the `MANUAL` strategy can
+be used to fulfill the same requirement. In situations where message acknowledgment reliability isn't important and losing
+messages is acceptable, the `PRE_PROCESSING` strategy might be appropriate.
 
-The only method in the guide that does not default to the `POST_PROCESSING` strategy is the
-[hotspot=sendProperty file=0]`sendProperty` method in the `system` service. The [hotspot=sendProperty file=0]`sendProperty`
-method receives property requests from the `inventory` service. For each property request, if the property being requested
-is valid then it [hotspot=validReturn file=0]`returns` a property response with the value of the property. However, if the requested
-property [hotspot=null file=0]`doesn't exist`, the request is ignored and no property response is
-[hotspot=returnEmpty file=0]`returned`.
+The only method in the guide that doesn't default to the `POST_PROCESSING` strategy is the
+[hotspot=sendProperty file=0]`sendProperty()` method in the `system` service. The [hotspot=sendProperty file=0]`sendProperty()`
+method receives property requests from the `inventory` service. For each property request, if the property that's being
+requested is valid, then the method [hotspot=validReturn file=0]`returns` a property response with the value of the property.
+However, if the requested property [hotspot=null file=0]`doesn't exist`, the request is ignored and no property response
+is [hotspot=returnEmpty file=0]`returned`.
 
-There is a key difference here, in the case where a property response is produced, the request is not finished processing
-until the response has been sent and safely stored by the Kafka broker, and it is only then that the incoming message should be acknowledged.
-However, in the case where the property requested doesn't exist, the method has already finished processing the request
-message so the message needs to be acknowledged immediately.
+A key difference exists between when a property response is returned and when a property response isn't returned. In the
+case where a property response is returned, the request doesn't finish processing until the response is sent and safely
+stored by the Kafka broker. Only then is the incoming message acknowledged. However, in the case where the requested
+property doesn’t exist and a property response isn't returned, the method finishes processing the request message so the
+message must be acknowledged immediately.
 
-This situation where a message either needs to be acknowledged immediately or some time later is one of the cases where
-the `MANUAL` acknowledgement strategy would be beneficial.
+This case where a message either needs to be acknowledged immediately or some time later is one of the situations where
+the `MANUAL` acknowledgment strategy would be beneficial
 
-== Implementing the MANUAL acknowledgement strategy
+== Implementing the MANUAL acknowledgment strategy
 
 // file 0
 finish/SystemService.java
@@ -113,9 +112,9 @@ finish/SystemService.java
 include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
-Ensure that you are in the `start` directory.
+Navigate to the `start` directory to begin.
 
-Update the `SystemService.sendProperty` method to use the `MANUAL` acknowledgement strategy, which fits the method processing
+Update the `SystemService.sendProperty` method to use the `MANUAL` acknowledgment strategy, which fits the method processing
 requirements better than the default `PRE_PROCESSING` strategy.
 
 [role="code_command hotspot file=0", subs="quotes"]
@@ -124,18 +123,19 @@ requirements better than the default `PRE_PROCESSING` strategy.
 `system/src/main/java/io/openliberty/guides/system/SystemService.java`
 ----
 
-The [hotspot=sendProperty file=0]`sendProperty` method needs to manually acknowledge the incoming messages, so it is
+The [hotspot=sendProperty file=0]`sendProperty()` method needs to manually acknowledge the incoming messages, so it is
 annotated with the [hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)`
-annotation. The annotation sets the method up to expect an incoming message, so the method parameter is updated to receive
-and return a [hotspot=methodSignature file=0]`Message` of type `String`, instead of just a string, to fit the requirements of
-acknowledgement. Then, the message [hotspot=propertyValue file=0]`payload` is extracted and checked for validity. There are two outcomes:
+annotation. This annotation sets the method up to expect an incoming message. To meet the requirements of acknowledgment,
+the method parameter is updated to receive and return a [hotspot=methodSignature file=0]`Message` of type `String`, rather
+than just a `String`. Then, the message [hotspot=propertyValue file=0]`payload` is extracted and checked for validity.
+One of the following outcomes occurs:
 
-    - If the system property is [hotspot=invalid file=0]`invalid`, the method [hotspot=propertyMessageAck file=0]`acknowledges`
+    - If the system property [hotspot=invalid file=0]`isn't valid`, the method [hotspot=propertyMessageAck file=0]`acknowledges`
         the incoming message and [hotspot=emptyReactiveStream file=0]`returns` an empty reactive stream. The processing is
         complete.
-    - If the system property is valid, the method creates a [hotspot=returnMessage file=0]`message` with
-        the value of the requested system property, and sends it to the proper channel. The method will only acknowledge
-        the incoming message when the sent message has been acknowledged.
+    - If the system property is valid, the method creates a [hotspot=returnMessage file=0]`message` with the value of the
+        requested system property and sends it to the proper channel. The method acknowledges the incoming message only
+        after the sent message is acknowledged.
 
 == Waiting for a message to be acknowledged
 
@@ -146,11 +146,11 @@ InventoryResource.java
 include::finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java[]
 ----
 
-The `inventory` service contains an endpoint that accepts `PUT` requests. When a `PUT` request is made to the `inventory`
-service with a request body that contains a system property, the `inventory` service sends a message to the `system`
-service, requesting the value of the system property. Currently, a `200` response code is returned without establishing
-if the sent message has been acknowledged. Replace the `inventory` service to only return a `200` response once the outgoing
-message has been acknowledged.
+The `inventory` service contains an endpoint that accepts `PUT` requests. When a `PUT` request that contains a system property
+is made to the `inventory` service, the `inventory` service sends a message to the `system` service. The message from the
+`inventory` service requests the value of the system property from the system service. Currently, a `200` response code
+is returned without confirming whether the sent message was acknowledged. Replace the `inventory` service to return a `200`
+response only after the outgoing message is acknowledged.
 
 [role="code_command hotspot file=0", subs="quotes"]
 ----
@@ -159,17 +159,17 @@ message has been acknowledged.
 ----
 
 The [hotspot=sendPropertyName file=0]`sendPropertyName()` method is updated to return a
-[hotspot=SPMHeader file=0]`Message<String>` instead of just a `String`. This allows the method to set a callback which
-will run once the outgoing message is acknowledged. In addition to updating the [hotspot=sendPropertyName file=0]`sendPropertyName()`
-method, the [hotspot=propertyNameEmitter file=0]`propertyNameEmitter` `FlowableEmitter` variable is updated to send a `Message<String>`.
+[hotspot=SPMHeader file=0]`Message<String>` instead of just a `String`. This return type allows the method to set a callback
+that runs after the outgoing message is acknowledged. In addition to updating the [hotspot=sendPropertyName file=0]`sendPropertyName()`
+method, the [hotspot=propertyNameEmitter file=0]`propertyNameEmitter` variable is updated to send a `Message<String>` type.
 
 The [hotspot=updateSystemProperty file=0]`updateSystemProperty()` method now returns a
-[hotspot=USPHeader file=0]`CompletionStage` wrapped around a Response. This allows for a response object
-to be returned after the outgoing message is acknowledged. The outgoing [hotspot=message file=0]`message` is created with the requested property
-name as the [hotspot=payload file=0]`payload`, and an acknowledgement [hotspot=acknowledgeAction file=0]`callback` to execute
-an action once the message is acknowledged. The method creates a
-[hotspot=CompletableFuture file=0]`CompletableFuture` variable that returns a [hotspot=returnResult file=0]`200`
-response code once the variable is completed, which happens in the [hotspot=acknowledgeAction file=0]`callback` function.
+[hotspot=USPHeader file=0]`CompletionStage` object wrapped around a Response type. This return type allows for a response
+object to be returned after the outgoing message is acknowledged. The outgoing [hotspot=message file=0]`message` is created
+with the requested property name as the [hotspot=payload file=0]`payload` and an acknowledgment
+[hotspot=acknowledgeAction file=0]`callback` to execute an action after the message is acknowledged. The method creates a
+[hotspot=CompletableFuture file=0]`CompletableFuture` variable that returns a [hotspot=returnResult file=0]`200` response
+code after the variable is completed in the [hotspot=acknowledgeAction file=0]`callback` function.
 
 == Building and running the application
 
@@ -177,7 +177,7 @@ Build the `system` and `inventory` microservices using Maven and then run them i
 
 Start your Docker environment. Dockerfiles are provided for you to use.
 
-To build the application, run the Maven `install` and `package` goals from the command line in the `start` directory:
+To build the application, run the Maven `install` and `package` goals from the command-line session in the `start` directory:
 
 [role='command']
 ```
@@ -222,7 +222,7 @@ include::{common-includes}/os-tabs.adoc[]
 After the application is up and running, you can access the application by making a GET request to the `/systems` endpoint
 of the `inventory` service.
 
-Visit the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. You see the CPU `systemLoad`
+Go to the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. You see the CPU `systemLoad`
 property for all the systems:
 
 [source, role='no_copy']
@@ -233,14 +233,14 @@ property for all the systems:
 }
 ----
 
-The `system` service sends messages to the `inventory` service every 15 seconds, the `inventory` service acknowledges each
-incoming message after processing them, ensuring that no `system` message is lost.
+The `system` service sends messages to the `inventory` service every 15 seconds. The `inventory` service processes and
+acknowledges each incoming message, ensuring that no `system` message is lost.
 
-You can revisit the http://localhost:9085/inventory/systems[^] URL after a while, and you notice the CPU `systemLoad`
+If you revisit the http://localhost:9085/inventory/systems[^] URL after a while, you notice that the CPU `systemLoad`
 property for the systems changed.
 
-Make a `PUT` request on the `\http://localhost:9085/inventory/data` URL to add the value of a particular system
-property to the set of existing properties. For example, run the following `curl` command:
+Make a `PUT` request to the `\http://localhost:9085/inventory/data` URL to add the value of a particular system property
+to the set of existing properties. For example, run the following `curl` command:
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -259,9 +259,9 @@ which allows requests to be made with a graphical interface.
 --
 
 In this example, the `PUT` request with the `os.name` system property in the request body on the `\http://localhost:9085/inventory/data`
-URL adds the `os.name` system property for your system. The `inventory` service sends a message containing the requested
-system property to the `system` service. The `inventory` service then waits until the message has been acknowledged
-before sending a response back.
+URL adds the `os.name` system property for your system. The `inventory` service sends a message that contains the requested
+system property to the `system` service. The `inventory` service then waits until the message is acknowledged before it
+sends a response back.
 
 You see the following output:
 
@@ -270,7 +270,7 @@ You see the following output:
 Request successful for the os.name property
 ----
 
-The above response is confirmation that the sent request message has been acknowledged.
+The previous example response is confirmation that the sent request message was acknowledged.
 
 You can revisit the http://localhost:9085/inventory/systems[^] URL and see the `os.name` system property value is now
 included with the previous values:
@@ -286,7 +286,7 @@ included with the previous values:
 
 == Tearing down the environment
 
-Finally, use the following script to stop the application:
+Finally, run the following script to stop the application:
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -308,7 +308,7 @@ include::{common-includes}/os-tabs.adoc[]
 
 == Great work! You're done!
 
-You have just developed an application using MicroProfile Reactive Messaging, Open Liberty and Kakfa.
+You developed an application by using MicroProfile Reactive Messaging, Open Liberty, and Kafka.
 
 == Related Links
 
