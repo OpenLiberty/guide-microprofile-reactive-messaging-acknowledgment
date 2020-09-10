@@ -75,7 +75,6 @@ public class SystemService {
         String propertyValue = System.getProperty(propertyName, "unknown");
         // end::propertyValue[]
         logger.info("sendProperty: " + propertyValue);
-        // tag::invalid[]
         if (propertyName == null || propertyName.isEmpty() || propertyValue == "unknown") {
             logger.warning("Provided property: " +
                     propertyName + " is not a system property");
@@ -86,7 +85,6 @@ public class SystemService {
             return ReactiveStreams.empty();
             // end::emptyReactiveStream[]
         }
-        // end::invalid[]
         // tag::returnMessage[]
         Message<PropertyMessage> message = Message.of(
                 new PropertyMessage(getHostname(),
@@ -94,8 +92,8 @@ public class SystemService {
                         propertyValue),
                 propertyMessage::ack
         );
-        return ReactiveStreams.of(message);
         // end::returnMessage[]
+        return ReactiveStreams.of(message);
     }
     // end::sendProperty[]
 }
