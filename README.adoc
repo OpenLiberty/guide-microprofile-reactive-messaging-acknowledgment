@@ -318,6 +318,6 @@ https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/mi
 
 https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/apidocs/[View the MicroProfile Reactive Messaging Javadoc^]
 
-https://openliberty.io/docs/later/microprofile.html[View the MicroProfile^]
+https://openliberty.io/docs/latest/microprofile.html[View the MicroProfile^]
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
