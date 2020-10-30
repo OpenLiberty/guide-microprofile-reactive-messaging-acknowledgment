@@ -31,6 +31,8 @@ Learn how to acknowledge messages by using MicroProfile Reactive Messaging.
 
 == What you'll learn
 
+THIS IS A TEST
+
 MicroProfile Reactive Messaging provides a reliable way to handle messages in reactive applications. MicroProfile Reactive
 Messaging ensures that messages aren't lost by requiring that messages that were delivered to the target server are acknowledged
 after they are processed. Every message that gets sent out must be acknowledged. This way, any messages that were delivered
