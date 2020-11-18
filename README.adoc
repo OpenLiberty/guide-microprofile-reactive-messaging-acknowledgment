@@ -31,8 +31,6 @@ Learn how to acknowledge messages by using MicroProfile Reactive Messaging.
 
 == What you'll learn
 
-Try this guide in skill network by clicking this https://labs.cognitiveclass.ai/tools/theiadocker/lab/tree?md_instructions_url=https://cf-course-data-staging.s3.us-east.cloud-object-storage.appdomain.cloud/acknowledging-messages-using-microprofile-reactive-messaging/instructions.md[link^].
-
 MicroProfile Reactive Messaging provides a reliable way to handle messages in reactive applications. MicroProfile Reactive
 Messaging ensures that messages aren't lost by requiring that messages that were delivered to the target server are acknowledged
 after they are processed. Every message that gets sent out must be acknowledged. This way, any messages that were delivered
@@ -321,5 +319,7 @@ https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/mi
 https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/apidocs/[View the MicroProfile Reactive Messaging Javadoc^]
 
 https://openliberty.io/docs/latest/microprofile.html[View the MicroProfile^]
+
+Try this guide in skill network by clicking this https://labs.cognitiveclass.ai/tools/theiadocker/lab/tree?md_instructions_url=https://cf-course-data-staging.s3.us-east.cloud-object-storage.appdomain.cloud/acknowledging-messages-using-microprofile-reactive-messaging/instructions.md[link^].
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
