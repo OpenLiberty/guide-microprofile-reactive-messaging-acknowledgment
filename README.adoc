@@ -320,6 +320,6 @@ https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/ap
 
 https://openliberty.io/docs/latest/microprofile.html[View the MicroProfile^]
 
-Try this guide in skill network by clicking this https://labs.cognitiveclass.ai/tools/theiadocker/lab/tree?md_instructions_url=https://cf-course-data-staging.s3.us-east.cloud-object-storage.appdomain.cloud/acknowledging-messages-using-microprofile-reactive-messaging/instructions.md[link^].
+https://labs.cognitiveclass.ai/tools/theiadocker/lab/tree?md_instructions_url=https://cf-course-data-staging.s3.us-east.cloud-object-storage.appdomain.cloud/acknowledging-messages-using-microprofile-reactive-messaging/instructions.md[link^].
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
