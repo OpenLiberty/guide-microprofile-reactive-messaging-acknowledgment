@@ -59,7 +59,7 @@ public class InventoryServiceIT {
     public static KafkaProducer<String, SystemLoad> producer;
 
     @KafkaConsumerClient(valueDeserializer = StringDeserializer.class,
-            groupId = "property-name", topics = "requestSystemPropertyTopic",
+            groupId = "property-name", topics = "request.system.property",
             properties = ConsumerConfig.AUTO_OFFSET_RESET_CONFIG + "=earliest")
     public static KafkaConsumer<String, String> propertyConsumer;
 
@@ -71,7 +71,7 @@ public class InventoryServiceIT {
     @Test
     public void testCpuUsage() throws InterruptedException {
         SystemLoad sl = new SystemLoad("localhost", 1.1);
-        producer.send(new ProducerRecord<String, SystemLoad>("systemLoadTopic", sl));
+        producer.send(new ProducerRecord<String, SystemLoad>("system.load", sl));
         Thread.sleep(5000);
         Response response = inventoryResource.getSystems();
         List<Properties> systems =
