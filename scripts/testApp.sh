@@ -1,18 +1,16 @@
 #!/bin/bash
 set -euxo pipefail
 
-##############################################################################
-##
-##  Travis CI test script
-##
-##############################################################################
-
 ./scripts/packageApps.sh
 
 mvn -pl system verify
 mvn -pl inventory verify
 
 ./scripts/buildImages.sh
+
+docker pull "bitnami/kafka:2"
+docker pull "bitnami/zookeeper:3"
+
 ./scripts/startContainers.sh
 
 sleep 180
