@@ -290,8 +290,6 @@ Finally, run the following script to stop the application:
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
-
 [.tab_content.windows_section]
 --
 [role='command']
@@ -299,7 +297,7 @@ include::{common-includes}/os-tabs.adoc[]
 .\scripts\stopContainers.bat
 ```
 --
-
+[.tab_content.mac_section.linux_section]
 --
 [role='command']
 ```
