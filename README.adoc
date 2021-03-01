@@ -201,19 +201,19 @@ project. For simplicity, the script starts one instance of the `system` service.
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/startContainers.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\startContainers.bat
+```
+--
+
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/startContainers.sh
 ```
 --
 
@@ -244,18 +244,18 @@ to the set of existing properties. For example, run the following `curl` command
 
 include::{common-includes}/os-tabs.adoc[]
 
+[.tab_content.windows_section]
+--
+If `curl` is unavailable on your computer, use another client such as https://www.getpostman.com/[Postman^],
+which allows requests to be made with a graphical interface.
+--
+
 [.tab_content.mac_section.linux_section]
 --
 [role=command]
 ```
 curl -X PUT -d "os.name" http://localhost:9085/inventory/data --header "Content-Type:text/plain"
 ```
---
-
-[.tab_content.windows_section]
---
-If `curl` is unavailable on your computer, use another client such as https://www.getpostman.com/[Postman^],
-which allows requests to be made with a graphical interface.
 --
 
 In this example, the `PUT` request with the `os.name` system property in the request body on the `\http://localhost:9085/inventory/data`
@@ -291,18 +291,19 @@ Finally, run the following script to stop the application:
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/stopContainers.sh
-```
---
 
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\stopContainers.bat
+```
+--
+
+--
+[role='command']
+```
+./scripts/stopContainers.sh
 ```
 --
 
