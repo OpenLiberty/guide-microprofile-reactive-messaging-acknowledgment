@@ -14,7 +14,7 @@
 :page-essential: false
 :page-description: Learn how to use MicroProfile Reactive Messaging acknowledgment strategies to acknowledge messages.
 :guide-author: Open Liberty
-:page-tags: ['MicroProfile', 'Jakarta EE', 'Microservices']
+:page-tags: ['MicroProfile', 'Jakarta EE']
 :page-related-guides: ['microprofile-reactive-messaging','microprofile-reactive-messaging-rest','reactive-messaging-sse','reactive-service-testing','microprofile-rest-client-async']
 :page-permalink: /guides/{projectid}
 :imagesdir: /img/guide/{projectid}
