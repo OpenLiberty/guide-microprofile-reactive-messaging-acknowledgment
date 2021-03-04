@@ -1,11 +1,14 @@
-name: action
+name: Rebuild cloud-hosted guide
 
 # Controls when the action will run. Triggers the workflow on push
 # events but only for the master branch
 on:
   push:
     branches:
-    - master
+      - 'master'
+      - 'qa'
+      - 'prod'
+      - 'staging'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,16 +22,12 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     # Uses the secrets from the organisation for credentials
     - uses: actions/checkout@v2
-      env:
-         SUPER_SECRET: ${{ secrets.SuperSecret }}
 
-    # Runs a single command using the runners shell
-    - name: post
-      # Sends post request to the openliberty/quick-labs repo
-      # Uses credentials and gives repo name
-      run: |
-        curl \
-          -H "Authorization: token ${{ secrets.GUIDECONVERSIONTOOL_PASSWORD }}" \
-          --request POST \
-          --data '{"event_type": "update", "client_payload": { "repository": "${{ github.event.repository.name }}" }}' \
-          https://api.github.com/repos/openliberty/quick-labs/dispatches
+    - name: Invoke workflow in another repo with inputs
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: GuideConverter
+        repo: OpenLiberty/cloud-hosted-guides
+        token: ${{ secrets.GUIDECONVERSIONTOOL_PASSWORD }}
+        inputs: '{ "branch": "${{ github.ref }}", "guide_name": "${{ github.event.repository.name }}" }'
+        ref: "refs/heads/prod"
