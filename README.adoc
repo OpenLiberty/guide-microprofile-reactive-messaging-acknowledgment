@@ -78,8 +78,8 @@ Almost all of the methods in this application that require message acknowledgmen
 by default. If the acknowledgment strategy is set to `POST_PROCESSING`, then MicroProfile Reactive Messaging acknowledges
 the message based on whether the annotated method emits data:
 
-    - If the method emits data, the incoming message is acknowledged after the outgoing message is acknowledged.
-    - If the method doesn't emit data, the incoming message is acknowledged after the method or processing completes.
+- If the method emits data, the incoming message is acknowledged after the outgoing message is acknowledged.
+- If the method doesn't emit data, the incoming message is acknowledged after the method or processing completes.
 
 It’s important that the methods use the `POST_PROCESSING` strategy because it fulfills the requirement that a message isn't
 acknowledged until after the message is fully processed. This processing strategy is beneficial in situations where messages
@@ -130,12 +130,12 @@ the method parameter is updated to receive and return a [hotspot=methodSignature
 than just a `String`. Then, the message [hotspot=propertyValue file=0]`payload` is extracted and checked for validity.
 One of the following outcomes occurs:
 
-    - If the system property [hotspot=invalid file=0]`isn't valid`, the method [hotspot=propertyMessageAck file=0]`acknowledges`
-        the incoming message and [hotspot=emptyReactiveStream file=0]`returns` an empty reactive stream. The processing is
-        complete.
-    - If the system property is valid, the method creates a [hotspot=returnMessage file=0]`message` with the value of the
-        requested system property and sends it to the proper channel. The method acknowledges the incoming message only
-        after the sent message is acknowledged.
+- If the system property [hotspot=invalid file=0]`isn't valid`, the method [hotspot=propertyMessageAck file=0]`acknowledges`
+  the incoming message and [hotspot=emptyReactiveStream file=0]`returns` an empty reactive stream. 
+  The processing is complete.
+- If the system property is valid, the method creates a [hotspot=returnMessage file=0]`message` with the value of the
+  requested system property and sends it to the proper channel. The method acknowledges the incoming message only
+  after the sent message is acknowledged.
 
 == Waiting for a message to be acknowledged
 
@@ -222,8 +222,8 @@ include::{common-includes}/os-tabs.adoc[]
 After the application is up and running, you can access the application by making a GET request to the `/systems` endpoint
 of the `inventory` service.
 
-Go to the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. You see the CPU `systemLoad`
-property for all the systems:
+Go to the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. 
+You see the CPU `systemLoad` property for all the systems:
 
 [source, role='no_copy']
 ----
@@ -236,8 +236,16 @@ property for all the systems:
 The `system` service sends messages to the `inventory` service every 15 seconds. The `inventory` service processes and
 acknowledges each incoming message, ensuring that no `system` message is lost.
 
+// Static guide instruction
+ifndef::cloud-hosted[]
 If you revisit the http://localhost:9085/inventory/systems[^] URL after a while, you notice that the CPU `systemLoad`
 property for the systems changed.
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+If you perform the `curl` command again after a while, you notice that the CPU `systemLoad` property for the systems changed.
+endif::[]
 
 Make a `PUT` request to the `\http://localhost:9085/inventory/data` URL to add the value of a particular system property
 to the set of existing properties. For example, run the following `curl` command:
@@ -272,8 +280,17 @@ Request successful for the os.name property
 
 The previous example response is confirmation that the sent request message was acknowledged.
 
-You can revisit the http://localhost:9085/inventory/systems[^] URL and see the `os.name` system property value is now
+// Static guide instruction
+ifndef::cloud-hosted[]
+Revisit the http://localhost:9085/inventory/systems[^] URL and see the `os.name` system property value is now
 included with the previous values:
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+Perform the `curl http://localhost:9085/inventory/systems` command again and see the `os.name` system property value is now
+included with the previous values:
+endif::[]
 
 [source, role='no_copy']
 ----
