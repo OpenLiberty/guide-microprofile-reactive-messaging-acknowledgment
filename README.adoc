@@ -222,8 +222,22 @@ include::{common-includes}/os-tabs.adoc[]
 After the application is up and running, you can access the application by making a GET request to the `/systems` 
 endpoint of the `inventory` service.
 
-Go to the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. 
+// Static guide instruction
+ifndef::cloud-hosted[]
+Go to the http://localhost:9085/inventory/systems[^] URL to access the `inventory` microservice. 
 You see the CPU `systemLoad` property for all the systems:
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+Run the following curl command to access the **inventory** microservice:
+```
+curl http://localhost:9085/inventory/systems
+```
+{: codeblock}
+
+You see the CPU **systemLoad** property for all the systems:
+endif::[]
 
 [source, role='no_copy']
 ----
@@ -244,7 +258,11 @@ endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
-If you perform the `curl` command again after a while, you notice that the CPU `systemLoad` property for the systems changed.
+If you perform the curl command again after a while, you notice that the CPU **systemLoad** property for the systems changed.
+```
+curl http://localhost:9085/inventory/systems
+```
+{: codeblock}
 endif::[]
 
 Make a `PUT` request to the `\http://localhost:9085/inventory/data` URL to add the value of a particular system property
@@ -288,8 +306,13 @@ endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
-Perform the `curl http://localhost:9085/inventory/systems` command again and see the `os.name` system property 
-value is now included with the previous values:
+Perform the curl command again:
+```
+curl http://localhost:9085/inventory/systems
+```
+{: codeblock}
+
+and see the **os.name** system property value is now included with the previous values:
 endif::[]
 
 [source, role='no_copy']
