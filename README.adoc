@@ -312,7 +312,7 @@ curl http://localhost:9085/inventory/systems
 ```
 {: codeblock}
 
-and see the **os.name** system property value is now included with the previous values:
+The **os.name** system property value is now included with the previous values:
 endif::[]
 
 [source, role='no_copy']
