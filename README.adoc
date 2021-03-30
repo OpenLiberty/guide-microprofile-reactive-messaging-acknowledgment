@@ -225,7 +225,7 @@ endpoint of the `inventory` service.
 // Static guide instruction
 ifndef::cloud-hosted[]
 Go to the http://localhost:9085/inventory/systems[^] URL to access the `inventory` microservice. 
-You see the CPU `systemLoad` property for all the systems:
+Look for the CPU `systemLoad` property for all the systems:
 endif::[]
 
 // Cloud hosted guide instruction
@@ -236,7 +236,7 @@ curl http://localhost:9085/inventory/systems
 ```
 {: codeblock}
 
-You see the CPU **systemLoad** property for all the systems:
+Look for the CPU **systemLoad** property for all the systems:
 endif::[]
 
 [source, role='no_copy']
@@ -258,7 +258,7 @@ endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
-If you perform the curl command again after a while, you notice that the CPU **systemLoad** property for the systems changed.
+If you run the curl command again after a while, notice that the CPU **systemLoad** property for the systems changed.
 ```
 curl http://localhost:9085/inventory/systems
 ```
@@ -306,7 +306,7 @@ endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
-Perform the curl command again:
+Run the following curl command again:
 ```
 curl http://localhost:9085/inventory/systems
 ```
