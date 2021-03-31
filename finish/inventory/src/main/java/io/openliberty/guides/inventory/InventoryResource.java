@@ -55,7 +55,7 @@ public class InventoryResource {
 
     @Inject
     private InventoryManager manager;
-    
+
     @GET
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
@@ -115,8 +115,8 @@ public class InventoryResource {
                         acknowledged, complete the "result" CompletableFuture. */
                     result.complete(null);
                     /* An ack callback must return a CompletionStage that says
-                        when it's complete. Asynchronous processing isn't necessary 
-                        so a completed CompletionStage is returned to indicate that 
+                        when it's complete. Asynchronous processing isn't necessary
+                        so a completed CompletionStage is returned to indicate that
                         the work here is done. */
                     return CompletableFuture.completedFuture(null);
                 }
@@ -126,7 +126,7 @@ public class InventoryResource {
         // Send the message
         propertyNameEmitter.onNext(message);
         /* Set up what happens when the message is acknowledged and the "result"
-            CompletableFuture is completed. When "result" completes, the Response 
+            CompletableFuture is completed. When "result" completes, the Response
             object is created with the status code and message. */
         // tag::returnResult[]
         return result.thenApply(a -> Response
