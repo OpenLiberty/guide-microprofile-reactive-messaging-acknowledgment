@@ -1,4 +1,4 @@
-//  Copyright (c) 2020 IBM Corporation and others.
+//  Copyright (c) 2020, 2021 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -14,7 +14,7 @@
 :page-essential: false
 :page-description: Learn how to use MicroProfile Reactive Messaging acknowledgment strategies to acknowledge messages.
 :guide-author: Open Liberty
-:page-tags: ['MicroProfile', 'Jakarta EE', 'Microservices']
+:page-tags: ['MicroProfile', 'Jakarta EE']
 :page-related-guides: ['microprofile-reactive-messaging','microprofile-reactive-messaging-rest','reactive-messaging-sse','reactive-service-testing','microprofile-rest-client-async']
 :page-permalink: /guides/{projectid}
 :imagesdir: /img/guide/{projectid}
@@ -29,11 +29,7 @@ NOTE: This repository contains the guide documentation source. To view the guide
 
 Learn how to acknowledge messages by using MicroProfile Reactive Messaging.
 
-Try this guide in skill network by clicking this https://labs.cognitiveclass.ai/tools/theiadocker/lab/tree?md_instructions_url=https://cf-course-data-staging.s3.us-east.cloud-object-storage.appdomain.cloud/acknowledging-messages-using-microprofile-reactive-messaging/instructions.md[link^].
-
 == What you'll learn
-
-Testing guide convertor #1.
 
 MicroProfile Reactive Messaging provides a reliable way to handle messages in reactive applications. MicroProfile Reactive
 Messaging ensures that messages aren't lost by requiring that messages that were delivered to the target server are acknowledged
@@ -82,8 +78,8 @@ Almost all of the methods in this application that require message acknowledgmen
 by default. If the acknowledgment strategy is set to `POST_PROCESSING`, then MicroProfile Reactive Messaging acknowledges
 the message based on whether the annotated method emits data:
 
-    - If the method emits data, the incoming message is acknowledged after the outgoing message is acknowledged.
-    - If the method doesn't emit data, the incoming message is acknowledged after the method or processing completes.
+* If the method emits data, the incoming message is acknowledged after the outgoing message is acknowledged.
+* If the method doesn't emit data, the incoming message is acknowledged after the method or processing completes.
 
 It’s important that the methods use the `POST_PROCESSING` strategy because it fulfills the requirement that a message isn't
 acknowledged until after the message is fully processed. This processing strategy is beneficial in situations where messages
@@ -134,12 +130,12 @@ the method parameter is updated to receive and return a [hotspot=methodSignature
 than just a `String`. Then, the message payload is extracted using the [hotspot=propertyValue file=0]`getPayload()` method. is extracted and checked for validity.
 One of the following outcomes occurs:
 
-    - If the system property isn't valid, the [hotspot=propertyMessageAck file=0]`ack()` method acknowledges
-        the incoming message and returns an empty reactive stream using the [hotspot=emptyReactiveStream file=0]`empty()` method. The processing is
-        complete.
-    - If the system property is valid, the method creates a [hotspot=returnMessage file=0]`Message` object with the value of the
-        requested system property and sends it to the proper channel. The method acknowledges the incoming message only
-        after the sent message is acknowledged.
+* If the system property [hotspot=invalid file=0]`isn't valid`, the method [hotspot=propertyMessageAck file=0]`acknowledges`
+  the incoming message and [hotspot=emptyReactiveStream file=0]`returns` an empty reactive stream. 
+  The processing is complete.
+* If the system property is valid, the method creates a [hotspot=returnMessage file=0]`message` with the value of the
+  requested system property and sends it to the proper channel. The method acknowledges the incoming message only
+  after the sent message is acknowledged.
 
 == Waiting for a message to be acknowledged
 
@@ -200,18 +196,10 @@ docker build -t inventory:1.0-SNAPSHOT inventory/.
 ```
 
 Next, use the provided script to start the application in Docker containers. The script creates a network for the
-containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and the microservices in the
-project. For simplicity, the script starts one instance of the `system` service.
+containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and the microservices 
+in the project. For simplicity, the script starts one instance of the `system` service.
 
 include::{common-includes}/os-tabs.adoc[]
-
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/startContainers.sh
-```
---
 
 [.tab_content.windows_section]
 --
@@ -221,13 +209,35 @@ include::{common-includes}/os-tabs.adoc[]
 ```
 --
 
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/startContainers.sh
+```
+--
+
 == Testing the application
 
-After the application is up and running, you can access the application by making a GET request to the `/systems` endpoint
-of the `inventory` service.
+After the application is up and running, you can access the application by making a GET request to the `/systems` 
+endpoint of the `inventory` service.
 
-Go to the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. You see the CPU `systemLoad`
-property for all the systems:
+// Static guide instruction
+ifndef::cloud-hosted[]
+Go to the http://localhost:9085/inventory/systems[^] URL to access the `inventory` microservice. 
+Look for the CPU `systemLoad` property for all the systems:
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+Run the following curl command to access the **inventory** microservice:
+```
+curl http://localhost:9085/inventory/systems
+```
+{: codeblock}
+
+Look for the CPU **systemLoad** property for all the systems:
+endif::[]
 
 [source, role='no_copy']
 ----
@@ -240,13 +250,31 @@ property for all the systems:
 The `system` service sends messages to the `inventory` service every 15 seconds. The `inventory` service processes and
 acknowledges each incoming message, ensuring that no `system` message is lost.
 
+// Static guide instruction
+ifndef::cloud-hosted[]
 If you revisit the http://localhost:9085/inventory/systems[^] URL after a while, you notice that the CPU `systemLoad`
 property for the systems changed.
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+If you run the curl command again after a while, notice that the CPU **systemLoad** property for the systems changed.
+```
+curl http://localhost:9085/inventory/systems
+```
+{: codeblock}
+endif::[]
 
 Make a `PUT` request to the `\http://localhost:9085/inventory/data` URL to add the value of a particular system property
 to the set of existing properties. For example, run the following `curl` command:
 
 include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.windows_section]
+--
+If `curl` is unavailable on your computer, use another client such as https://www.getpostman.com/[Postman^],
+which allows requests to be made with a graphical interface.
+--
 
 [.tab_content.mac_section.linux_section]
 --
@@ -256,16 +284,10 @@ curl -X PUT -d "os.name" http://localhost:9085/inventory/data --header "Content-
 ```
 --
 
-[.tab_content.windows_section]
---
-If `curl` is unavailable on your computer, use another client such as https://www.getpostman.com/[Postman^],
-which allows requests to be made with a graphical interface.
---
-
-In this example, the `PUT` request with the `os.name` system property in the request body on the `\http://localhost:9085/inventory/data`
-URL adds the `os.name` system property for your system. The `inventory` service sends a message that contains the requested
-system property to the `system` service. The `inventory` service then waits until the message is acknowledged before it
-sends a response back.
+In this example, the `PUT` request with the `os.name` system property in the request body on the 
+`\http://localhost:9085/inventory/data` URL adds the `os.name` system property for your system. 
+The `inventory` service sends a message that contains the requested system property to the `system` service. 
+The `inventory` service then waits until the message is acknowledged before it sends a response back.
 
 You see the following output:
 
@@ -276,8 +298,22 @@ Request successful for the os.name property
 
 The previous example response is confirmation that the sent request message was acknowledged.
 
-You can revisit the http://localhost:9085/inventory/systems[^] URL and see the `os.name` system property value is now
+// Static guide instruction
+ifndef::cloud-hosted[]
+Revisit the http://localhost:9085/inventory/systems[^] URL and see the `os.name` system property value is now
 included with the previous values:
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+Run the following curl command again:
+```
+curl http://localhost:9085/inventory/systems
+```
+{: codeblock}
+
+The **os.name** system property value is now included with the previous values:
+endif::[]
 
 [source, role='no_copy']
 ----
@@ -294,19 +330,18 @@ Finally, run the following script to stop the application:
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/stopContainers.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\stopContainers.bat
+```
+--
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/stopContainers.sh
 ```
 --
 
