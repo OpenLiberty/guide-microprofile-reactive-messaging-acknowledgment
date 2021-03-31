@@ -75,9 +75,9 @@ public class SystemService {
         String propertyValue = System.getProperty(propertyName, "unknown");
         // end::propertyValue[]
         logger.info("sendProperty: " + propertyValue);
-        if (propertyName == null || 
-            propertyName.isEmpty() || 
-            propertyValue == "unknown") {
+        if (propertyName == null
+            || propertyName.isEmpty()
+            || propertyValue == "unknown") {
             logger.warning("Provided property: "
                     + propertyName + " is not a system property");
             // tag::propertyMessageAck[]
