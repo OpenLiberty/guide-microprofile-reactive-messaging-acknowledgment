@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -109,7 +109,6 @@ public class InventoryResource {
                 // tag::payload[]
                 propertyName,
                 // end::payload[]
-                // tag::acknowledgeAction[]
                 () -> {
                     /* This is the ack callback, which runs when the outgoing
                         message is acknowledged. After the outgoing message is
@@ -121,7 +120,6 @@ public class InventoryResource {
                         the work here is done. */
                     return CompletableFuture.completedFuture(null);
                 }
-                // end::acknowledgeAction[]
         );
         // end::message[]
 
@@ -148,10 +146,7 @@ public class InventoryResource {
                 .build();
     }
 
-    // tag::updateStatus[]
-    // tag::systemLoadIncoming[]
     @Incoming("systemLoad")
-    // end::systemLoadIncoming[]
     public void updateStatus(SystemLoad sl)  {
         String hostname = sl.hostname;
         if (manager.getSystem(hostname).isPresent()) {
@@ -162,12 +157,8 @@ public class InventoryResource {
             logger.info("Host " + hostname + " was added: " + sl);
         }
     }
-    // end::updateStatus[]
 
-    // tag::getPropertyMessage[]
-    // tag::addSystemPropertyIncoming[]
     @Incoming("addSystemProperty")
-    // end::addSystemPropertyIncoming[]
     public void getPropertyMessage(PropertyMessage pm)  {
         logger.info("getPropertyMessage: " + pm);
         String hostId = pm.hostname;
@@ -179,7 +170,6 @@ public class InventoryResource {
             logger.info("Host " + hostId + " was added: " + pm);
         }
     }
-    // end::getPropertyMessage[]
 
     // tag::sendPropertyName[]
     @Outgoing("requestSystemProperty")

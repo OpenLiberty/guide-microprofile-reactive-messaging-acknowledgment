@@ -85,8 +85,8 @@ the `PRE_PROCESSING` strategy might be appropriate.
 The only method in the guide that doesn't default to the `POST_PROCESSING` strategy is the
 [hotspot=sendProperty file=0]`sendProperty()` method in the `system` service. 
 The [hotspot=sendProperty file=0]`sendProperty()` method receives property requests from the `inventory` service. 
-For each property request, if the property that's being requested is valid, then the method 
-[hotspot=validReturn file=0]`returns` a property response with the value of the property.
+For each property request, if the property that's being requested is valid, the `sendProperty()` method 
+returns a [hotpost=propertyMessage file=0]`propertyMessage` with the value of the property.
 However, if the requested property is [hotspot=null file=0]`null`, the request is ignored and an empty reactive stream
 is returned using the [hotspot=returnEmpty file=0]`empty()` method. 
 
@@ -148,12 +148,12 @@ To meet the requirements of acknowledgment, the method parameter is updated to r
 Then, the message payload is extracted using the [hotspot=propertyValue file=0]`getPayload()` method and checked for validity.
 One of the following outcomes occurs:
 
-    - If the system property isn't valid, the [hotspot=propertyMessageAck file=0]`ack()` method acknowledges
-        the incoming message and returns an empty reactive stream using the [hotspot=emptyReactiveStream file=0]`empty()` method. The processing is
-        complete.
-    - If the system property is valid, the method creates a [hotspot=returnMessage file=0]`Message` object with the value of the
-        requested system property and sends it to the proper channel. The method acknowledges the incoming message only
-        after the sent message is acknowledged.
+* If the system property isn't valid, the [hotspot=propertyMessageAck file=0]`ack()` method acknowledges the incoming 
+  message and returns an empty reactive stream using the [hotspot=emptyReactiveStream file=0]`empty()` method. 
+  The processing is complete.
+* If the system property is valid, the method creates a [hotspot=returnMessage file=0]`Message` with the value of the
+  requested system property and sends it to the proper channel. 
+  The method acknowledges the incoming message only after the sent message is acknowledged.
 
 == Waiting for a message to be acknowledged
 
@@ -185,11 +185,10 @@ method, the [hotspot=propertyNameEmitter file=0]`propertyNameEmitter` variable i
 The [hotspot=updateSystemProperty file=0]`updateSystemProperty()` method now returns a
 [hotspot=USPHeader file=0]`CompletionStage` object wrapped around a Response type. This return type allows for a response
 object to be returned after the outgoing message is acknowledged. 
-The outgoing [hotspot=message file=0]`message` is created with the requested [hotspot=payload file=0]`propertyName` 
-as the payload and an acknowledgment [hotspot=acknowledgeAction file=0]`callback` to execute an action after 
-the message is acknowledged. 
+The outgoing [hotspot=message file=0]`Message` is created with the requested [hotspot=payload file=0]`propertyName` 
+as the payload and an acknowledgment callback function to execute an action after the message is acknowledged. 
 The method creates a [hotspot=CompletableFuture file=0]`CompletableFuture` variable that returns a 
-[hotspot=returnResult file=0]`200` response code after the variable is completed in the [hotspot=acknowledgeAction file=0]`callback` function.
+[hotspot=returnResult file=0]`200` response code after the variable is completed in the callback function.
 
 == Building and running the application
 
