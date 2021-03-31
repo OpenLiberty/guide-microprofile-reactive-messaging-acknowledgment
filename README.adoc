@@ -361,16 +361,14 @@ include::{common-includes}/os-tabs.adoc[]
 
 == Great work! You're done!
 
-You developed an application by using MicroProfile Reactive Messaging, Open Liberty, and Kafka.
+You implemented message acknowledgment in an application using MicroProfile Reactive Messaging.
 
 == Related Links
 
-Learn more about MicroProfile.
+Learn more about MicroProfile Reactive Messaging.
 
 https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html[View the MicroProfile Reactive Messaging Specification^]
 
 https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/apidocs/[View the MicroProfile Reactive Messaging Javadoc^]
-
-https://openliberty.io/docs/latest/microprofile.html[View the MicroProfile^]
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
