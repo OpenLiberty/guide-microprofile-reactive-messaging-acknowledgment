@@ -20,7 +20,7 @@
 :imagesdir: /img/guide/{projectid}
 :page-seo-title: Acknowledging messages in Java microservices using MicroProfile Reactive Messaging
 :page-seo-description: A getting started tutorial with examples on how to acknowledge messages in asynchronous Java microservices using different MicroProfile Reactive Messaging acknowledgment strategies.
-:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/dev
+:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/master
 :source-highlighter: prettify
 = Acknowledging messages using MicroProfile Reactive Messaging
 
@@ -122,7 +122,19 @@ finish/SystemService.java
 include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
+// static guide instructions:
+ifndef::cloud-hosted[]
 Navigate to the `start` directory to begin.
+endif::[]
+
+// cloud-hosted instructions
+ifdef::cloud-hosted[]
+To begin, run the following command to navigate to the **start** directory:
+```
+cd /home/project/guide-microprofile-reactive-messaging-acknowledgment/start
+```
+{: codeblock}
+endif::[]
 
 Update the `SystemService.sendProperty` method to use the `MANUAL` acknowledgment strategy, 
 which fits the method processing requirements better than the default `PRE_PROCESSING` strategy.
