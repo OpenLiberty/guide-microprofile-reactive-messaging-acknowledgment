@@ -20,7 +20,7 @@
 :imagesdir: /img/guide/{projectid}
 :page-seo-title: Acknowledging messages in Java microservices using MicroProfile Reactive Messaging
 :page-seo-description: A getting started tutorial with examples on how to acknowledge messages in asynchronous Java microservices using different MicroProfile Reactive Messaging acknowledgment strategies.
-:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/master
+:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/prod
 :source-highlighter: prettify
 = Acknowledging messages using MicroProfile Reactive Messaging
 
@@ -211,7 +211,7 @@ mvn -pl models install
 mvn package
 ```
 
-include::{common-includes}/ol-kernel-docker-pull.adoc[]
+include::{common-includes}/ol-full-docker-pull.adoc[]
 
 Run the following commands to containerize the microservices:
 
