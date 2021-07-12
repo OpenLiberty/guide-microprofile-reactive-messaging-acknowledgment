@@ -244,7 +244,7 @@ endif::[]
 ifdef::cloud-hosted[]
 Run the following curl command to access the **inventory** microservice:
 ```
-curl http://localhost:9085/inventory/systems
+curl -s http://localhost:9085/inventory/systems | jq
 ```
 {: codeblock}
 
@@ -272,7 +272,7 @@ endif::[]
 ifdef::cloud-hosted[]
 If you run the curl command again after a while, notice that the CPU **systemLoad** property for the systems changed.
 ```
-curl http://localhost:9085/inventory/systems
+curl -s http://localhost:9085/inventory/systems | jq
 ```
 {: codeblock}
 endif::[]
@@ -320,7 +320,7 @@ endif::[]
 ifdef::cloud-hosted[]
 Run the following curl command again:
 ```
-curl http://localhost:9085/inventory/systems
+curl -s http://localhost:9085/inventory/systems | jq
 ```
 {: codeblock}
 
