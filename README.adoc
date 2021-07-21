@@ -236,12 +236,20 @@ endpoint of the `inventory` service.
 
 // Static guide instruction
 ifndef::cloud-hosted[]
+Visit the http://localhost:9085/healthy[^] URL to confirm that the `inventory` microservice is up and running.
+
 Go to the http://localhost:9085/inventory/systems[^] URL to access the `inventory` microservice. 
 Look for the CPU `systemLoad` property for all the systems:
 endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
+Run the following curl command to confirm that the **inventory** microservice is up and running.
+```
+curl -s http://localhost:9085/health | jq
+```
+{: codeblock}
+
 Run the following curl command to access the **inventory** microservice:
 ```
 curl -s http://localhost:9085/inventory/systems | jq
