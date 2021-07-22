@@ -238,7 +238,7 @@ endpoint of the `inventory` service.
 ifndef::cloud-hosted[]
 Visit the http://localhost:9085/health[^] URL to confirm that the `inventory` microservice is up and running.
 
-Go to the http://localhost:9085/inventory/systems[^] URL to access the `inventory` microservice. 
+When both health liveness and readiness check are up, go to the http://localhost:9085/inventory/systems[^] URL to access the `inventory` microservice. 
 Look for the CPU `systemLoad` property for all the systems:
 endif::[]
 
@@ -250,7 +250,7 @@ curl -s http://localhost:9085/health | jq
 ```
 {: codeblock}
 
-Run the following curl command to access the **inventory** microservice:
+When both health liveness and readiness check are up, run the following curl command to access the **inventory** microservice:
 ```
 curl -s http://localhost:9085/inventory/systems | jq
 ```
