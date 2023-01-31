@@ -67,7 +67,7 @@ public class InventoryReadinessCheck implements HealthCheck {
         KafkaFuture<Collection<ConsumerGroupListing>> consumerGroupsFuture =
         groupsResult.valid();
         try {
-            Collection<ConsumerGroupListing> consumerGroups = 
+            Collection<ConsumerGroupListing> consumerGroups =
             consumerGroupsFuture.get();
             for (ConsumerGroupListing g : consumerGroups) {
                 logger.info("groupId: " + g.groupId());
