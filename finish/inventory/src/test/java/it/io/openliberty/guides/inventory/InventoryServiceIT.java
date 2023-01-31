@@ -74,7 +74,7 @@ public class InventoryServiceIT {
         Thread.sleep(5000);
         Response response = inventoryResource.getSystems();
         List<Properties> systems =
-                response.readEntity(new GenericType<List<Properties>>() { } );
+                response.readEntity(new GenericType<List<Properties>>(){ } );
         Assertions.assertEquals(200, response.getStatus(),
                 "Response should be 200");
         Assertions.assertEquals(systems.size(), 1);
@@ -86,15 +86,15 @@ public class InventoryServiceIT {
                     "CPU load doesn't match!");
         }
     }
-
-    // Disabled the following test because MST RESTClient 
+    
+    // Disabled the following test because MST RESTClient
     // does not support CompletionStage return type.
     // See https://github.com/MicroShed/microshed-testing/issues/213
     //@Test
     public void testUpdateSystemProperty()
     throws ExecutionException, InterruptedException {
         CountDownLatch countDown = new CountDownLatch(1);
-        int responseStatus[] = new int[] {0};
+        int[] responseStatus = new int[] {0};
         inventoryResource.updateSystemProperty("os.name")
         .thenAcceptAsync(r -> {
             responseStatus[0] = r.getStatus();

@@ -21,7 +21,7 @@ import org.apache.kafka.common.serialization.Serializer;
 
 public class PropertyMessage {
 
-    private static final Jsonb jsonb = JsonbBuilder.create();
+    private static final Jsonb Jsonb = JsonbBuilder.create();
 
     public String hostname;
     public String key;
@@ -57,22 +57,24 @@ public class PropertyMessage {
 
     @Override
     public String toString() {
-        return "PropertyMessage: " + jsonb.toJson(this);
+        return "PropertyMessage: " + Jsonb.toJson(this);
     }
 
     public static class PropertyMessageSerializer implements Serializer<Object> {
         @Override
         public byte[] serialize(String topic, Object data) {
-          return jsonb.toJson(data).getBytes();
+          return Jsonb.toJson(data).getBytes();
         }
     }
 
-    public static class PropertyMessageDeserializer implements Deserializer<PropertyMessage> {
+    public static class PropertyMessageDeserializer
+    implements Deserializer<PropertyMessage> {
         @Override
         public PropertyMessage deserialize(String topic, byte[] data) {
-            if (data == null)
+            if (data == null) {    
                 return null;
-            return jsonb.fromJson(new String(data), PropertyMessage.class);
+            }
+            return Jsonb.fromJson(new String(data), PropertyMessage.class);
         }
     }
 }

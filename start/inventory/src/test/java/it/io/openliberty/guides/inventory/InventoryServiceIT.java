@@ -74,7 +74,7 @@ public class InventoryServiceIT {
         Thread.sleep(5000);
         Response response = inventoryResource.getSystems();
         List<Properties> systems =
-                response.readEntity(new GenericType<List<Properties>>() { } );
+                response.readEntity(new GenericType<List<Properties>>(){ } );
         Assertions.assertEquals(200, response.getStatus(),
                 "Response should be 200");
         Assertions.assertEquals(systems.size(), 1);
@@ -87,14 +87,14 @@ public class InventoryServiceIT {
         }
     }
 
-    // Disabled the following test because MST RESTClient 
+    // Disabled the following test because MST RESTClient
     // does not support CompletionStage return type.
     // See https://github.com/MicroShed/microshed-testing/issues/213
     //@Test
     public void testUpdateSystemProperty()
     throws ExecutionException, InterruptedException {
         CountDownLatch countDown = new CountDownLatch(1);
-        int responseStatus[] = new int[] {0};
+        int[] responseStatus = new int[] {0};
         inventoryResource.updateSystemProperty("os.name").thenAcceptAsync(r -> {
             responseStatus[0] = r.getStatus();
             countDown.countDown();
@@ -109,7 +109,8 @@ public class InventoryServiceIT {
         Assertions.assertEquals(200, responseStatus[0],
                 "Response should be 200");
 
-        ConsumerRecords<String, String> records = propertyConsumer.poll(Duration.ofMillis(30 * 1000));
+        ConsumerRecords<String, String> records = propertyConsumer
+        .poll(Duration.ofMillis(30 * 1000));
         System.out.println("Polled " + records.count() + " records from Kafka:");
         assertTrue(records.count() > 0, "No records processed");
         for (ConsumerRecord<String, String> record : records) {
