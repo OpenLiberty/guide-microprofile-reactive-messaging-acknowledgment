@@ -123,8 +123,7 @@ cd /home/project/guide-microprofile-reactive-messaging-acknowledgment/start
 ```
 endif::[]
 
-Update the `SystemService.sendProperty` method to use the `MANUAL` acknowledgment strategy, 
-which fits the method processing requirements better than the default `PRE_PROCESSING` strategy.
+Update the `SystemService.sendProperty` method to use the `MANUAL` acknowledgment strategy, which fits the method processing requirements better than the default `PRE_PROCESSING` strategy.
 
 [role="code_command hotspot file=0", subs="quotes"]
 ----
