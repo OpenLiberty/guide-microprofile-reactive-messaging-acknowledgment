@@ -74,7 +74,9 @@ public class InventoryServiceIT {
         Thread.sleep(5000);
         Response response = inventoryResource.getSystems();
         List<Properties> systems =
-                response.readEntity(new GenericType<List<Properties>>(){ } );
+                response.readEntity(new GenericType<List<Properties>>()
+                    { }
+                );
         Assertions.assertEquals(200, response.getStatus(),
                 "Response should be 200");
         Assertions.assertEquals(systems.size(), 1);
@@ -86,7 +88,7 @@ public class InventoryServiceIT {
                     "CPU load doesn't match!");
         }
     }
-    
+
     // Disabled the following test because MST RESTClient
     // does not support CompletionStage return type.
     // See https://github.com/MicroShed/microshed-testing/issues/213
