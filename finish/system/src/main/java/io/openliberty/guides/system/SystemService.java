@@ -1,12 +1,13 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-2.0/
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * SPDX-License-Identifier: EPL-2.0
+ * Contributors:
+ *     IBM Corporation - Initial implementation
  *******************************************************************************/
 // end::copyright[]
 package io.openliberty.guides.system;
@@ -34,10 +35,10 @@ import io.reactivex.rxjava3.core.Flowable;
 
 @ApplicationScoped
 public class SystemService {
-
+    
     private static Logger logger = Logger.getLogger(SystemService.class.getName());
 
-    private static final OperatingSystemMXBean OS_MEAN =
+    private static final OperatingSystemMXBean osMean = 
             ManagementFactory.getOperatingSystemMXBean();
     private static String hostname = null;
 
@@ -56,7 +57,7 @@ public class SystemService {
     public Publisher<SystemLoad> sendSystemLoad() {
         return Flowable.interval(15, TimeUnit.SECONDS)
                 .map((interval -> new SystemLoad(getHostname(),
-                        OS_MEAN.getSystemLoadAverage())));
+                        osMean.getSystemLoadAverage())));
     }
 
     // tag::sendProperty[]
@@ -74,11 +75,10 @@ public class SystemService {
         String propertyValue = System.getProperty(propertyName, "unknown");
         // end::propertyValue[]
         logger.info("sendProperty: " + propertyValue);
-        if (propertyName == null
-            || propertyName.isEmpty()
-            || propertyValue == "unknown") {
-            logger.warning("Provided property: "
-                    + propertyName + " is not a system property");
+        // tag::invalid[]
+        if (propertyName == null || propertyName.isEmpty() || propertyValue == "unknown") {
+            logger.warning("Provided property: " +
+                    propertyName + " is not a system property");
             // tag::propertyMessageAck[]
             propertyMessage.ack();
             // end::propertyMessageAck[]
@@ -86,6 +86,7 @@ public class SystemService {
             return ReactiveStreams.empty();
             // end::emptyReactiveStream[]
         }
+        // end::invalid[]
         // tag::returnMessage[]
         Message<PropertyMessage> message = Message.of(
                 new PropertyMessage(getHostname(),
@@ -93,8 +94,8 @@ public class SystemService {
                         propertyValue),
                 propertyMessage::ack
         );
-        // end::returnMessage[]
         return ReactiveStreams.of(message);
+        // end::returnMessage[]
     }
     // end::sendProperty[]
 }
