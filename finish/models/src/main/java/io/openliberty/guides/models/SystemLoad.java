@@ -25,7 +25,7 @@ public class SystemLoad {
 
     public String hostname;
     public Double loadAverage;
-        
+
     public SystemLoad(String hostname, Double cpuLoadAvg) {
         this.hostname = hostname;
         this.loadAverage = cpuLoadAvg;
@@ -36,8 +36,12 @@ public class SystemLoad {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SystemLoad)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SystemLoad)) {
+            return false;
+        }
         SystemLoad sl = (SystemLoad) o;
         return Objects.equals(hostname, sl.hostname)
                 && Objects.equals(loadAverage, sl.loadAverage);
@@ -47,7 +51,7 @@ public class SystemLoad {
     public int hashCode() {
         return Objects.hash(hostname, loadAverage);
     }
-    
+
     @Override
     public String toString() {
         return "CpuLoadAverage: " + jsonb.toJson(this);
@@ -63,10 +67,10 @@ public class SystemLoad {
     public static class SystemLoadDeserializer implements Deserializer<SystemLoad> {
         @Override
         public SystemLoad deserialize(String topic, byte[] data) {
-            if (data == null)
+            if (data == null) {
                 return null;
+            }
             return jsonb.fromJson(new String(data), SystemLoad.class);
         }
     }
-
 }

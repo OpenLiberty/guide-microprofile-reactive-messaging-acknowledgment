@@ -26,7 +26,7 @@ public class PropertyMessage {
     public String hostname;
     public String key;
     public String value;
-    
+
     public PropertyMessage(String hostname, String key, String value) {
         this.hostname = hostname;
         this.key = key;
@@ -38,8 +38,12 @@ public class PropertyMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PropertyMessage)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PropertyMessage)) {
+            return false;
+        }
         PropertyMessage m = (PropertyMessage) o;
         return Objects.equals(hostname, m.hostname)
                 && Objects.equals(key, m.key)
@@ -50,19 +54,19 @@ public class PropertyMessage {
     public int hashCode() {
         return Objects.hash(hostname, key, value);
     }
-    
+
     @Override
     public String toString() {
         return "PropertyMessage: " + jsonb.toJson(this);
     }
-    
+
     public static class PropertyMessageSerializer implements Serializer<Object> {
         @Override
         public byte[] serialize(String topic, Object data) {
           return jsonb.toJson(data).getBytes();
         }
     }
-      
+
     public static class PropertyMessageDeserializer implements Deserializer<PropertyMessage> {
         @Override
         public PropertyMessage deserialize(String topic, byte[] data) {
