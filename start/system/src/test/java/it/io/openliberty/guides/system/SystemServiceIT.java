@@ -97,7 +97,7 @@ public class SystemServiceIT {
                 propertyConsumer.poll(Duration.ofMillis(30 * 1000));
         System.out.println("Polled " + records.count() + " records from Kafka");
         assertTrue(records.count() == 0,
-                "System service printed properties " 
+                "System service printed properties "
                 + "of an invalid system property (null)");
     }
 }
