@@ -71,8 +71,8 @@ public class SystemServiceIT {
 
     @Test
     public void testPropertyMessage() throws IOException, InterruptedException {
-        propertyProducer.send(new ProducerRecord<String, String>
-                ("request.system.property", "os.name"));
+        propertyProducer.send(new ProducerRecord<String, String>(
+                "request.system.property", "os.name"));
 
         ConsumerRecords<String, PropertyMessage> records =
                 propertyConsumer.poll(Duration.ofMillis(30 * 1000));
@@ -97,7 +97,7 @@ public class SystemServiceIT {
                 propertyConsumer.poll(Duration.ofMillis(30 * 1000));
         System.out.println("Polled " + records.count() + " records from Kafka");
         assertTrue(records.count() == 0,
-                "System service printed properties " +
-                "of an invalid system property (null)");
+                "System service printed properties " 
+                + "of an invalid system property (null)");
     }
 }

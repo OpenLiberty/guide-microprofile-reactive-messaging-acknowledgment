@@ -71,7 +71,7 @@ public class PropertyMessage {
     implements Deserializer<PropertyMessage> {
         @Override
         public PropertyMessage deserialize(String topic, byte[] data) {
-            if (data == null) {    
+            if (data == null) {
                 return null;
             }
             return JSONB.fromJson(new String(data), PropertyMessage.class);
