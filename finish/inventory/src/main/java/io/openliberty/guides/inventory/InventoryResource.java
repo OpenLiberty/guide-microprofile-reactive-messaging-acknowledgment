@@ -67,7 +67,7 @@ public class InventoryResource {
                 .status(Response.Status.OK)
                 .entity(systems)
                 .build();
-    }
+            }
 
     @GET
     @Path("/systems/{hostname}")

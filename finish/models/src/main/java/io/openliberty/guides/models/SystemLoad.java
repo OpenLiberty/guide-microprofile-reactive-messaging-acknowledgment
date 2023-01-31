@@ -21,7 +21,7 @@ import org.apache.kafka.common.serialization.Serializer;
 
 public class SystemLoad {
 
-    private static final Jsonb jsonB = JsonbBuilder.create();
+    private static final Jsonb Jsonb = JsonbBuilder.create();
 
     public String hostname;
     public Double loadAverage;
