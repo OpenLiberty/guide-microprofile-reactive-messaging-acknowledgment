@@ -46,8 +46,8 @@ public class PropertyMessage {
         }
         PropertyMessage m = (PropertyMessage) o;
         return Objects.equals(hostname, m.hostname)
-                && Objects.equals(key, m.key)
-                && Objects.equals(value, m.value);
+               && Objects.equals(key, m.key)
+               && Objects.equals(value, m.value);
     }
 
     @Override
@@ -67,8 +67,7 @@ public class PropertyMessage {
         }
     }
 
-    public static class PropertyMessageDeserializer implements
-    Deserializer<PropertyMessage> {
+    public static class PropertyMessageDeserializer implements Deserializer<PropertyMessage> {
         @Override
         public PropertyMessage deserialize(String topic, byte[] data) {
             if (data == null) {
