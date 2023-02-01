@@ -67,7 +67,9 @@ public class PropertyMessage {
         }
     }
 
-    public static class PropertyMessageDeserializer implements Deserializer<PropertyMessage> {
+    public static class PropertyMessageDeserializer
+        implements Deserializer<PropertyMessage> {
+
         @Override
         public PropertyMessage deserialize(String topic, byte[] data) {
             if (data == null) {
