@@ -47,8 +47,8 @@ public class InventoryManager {
         Optional<Properties> p = getSystem(hostname);
         if (p.isPresent()) {
             if (p.get().getProperty(hostname) == null && hostname != null) {
-                    p.get().put("systemLoad", systemLoad);
-                }
+                p.get().put("systemLoad", systemLoad);
+            }
         }
     }
 
