@@ -31,7 +31,8 @@ import org.eclipse.microprofile.health.Readiness;
 @ApplicationScoped
 public class InventoryReadinessCheck implements HealthCheck {
 
-    private static Logger logger = Logger.getLogger(InventoryReadinessCheck.class.getName());
+    private static Logger logger = Logger.getLogger(
+        InventoryReadinessCheck.class.getName());
 
     @Inject
     @ConfigProperty(name = "mp.messaging.connector.liberty-kafka.bootstrap.servers")
@@ -62,9 +63,11 @@ public class InventoryReadinessCheck implements HealthCheck {
 
     private boolean checkIfBarConsumerGroupRegistered(AdminClient adminClient) {
         ListConsumerGroupsResult groupsResult = adminClient.listConsumerGroups();
-        KafkaFuture<Collection<ConsumerGroupListing>> consumerGroupsFuture = groupsResult.valid();
+        KafkaFuture<Collection<ConsumerGroupListing>> consumerGroupsFuture =
+            groupsResult.valid();
         try {
-            Collection<ConsumerGroupListing> consumerGroups = consumerGroupsFuture.get();
+            Collection<ConsumerGroupListing> consumerGroups =
+                consumerGroupsFuture.get();
             for (ConsumerGroupListing g : consumerGroups) {
                 logger.info("groupId: " + g.groupId());
             }
