@@ -66,7 +66,7 @@ public class InventoryReadinessCheck implements HealthCheck {
             consumerGroupsFuture = groupsResult.valid();
         try {
             Collection<ConsumerGroupListing> consumerGroups =
-            consumerGroupsFuture.get();
+                consumerGroupsFuture.get();
             for (ConsumerGroupListing g : consumerGroups) {
                 logger.info("groupId: " + g.groupId());
             }
