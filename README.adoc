@@ -105,7 +105,6 @@ The [hotspot=sendProperty file=0]`sendProperty()` method needs to manually ackno
 * If the [hotspot=invalid file=0]`propertyName` system property isn't valid, the [hotspot=propertyMessageAck file=0]`ack()` method acknowledges the incoming message and returns an empty reactive stream using the [hotspot=emptyReactiveStream file=0]`empty()` method. The processing is complete.
 * If the system property is valid, the method creates a [hotspot=returnMessage file=0]`Message` object with the value of the requested system property and sends it to the proper channel. The method acknowledges the incoming message only after the sent message is acknowledged.
 
-== Waiting for a message to be acknowledged
 
 == Waiting for a message to be acknowledged
 
