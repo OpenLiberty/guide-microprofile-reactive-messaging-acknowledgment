@@ -100,10 +100,10 @@ finish/SystemService.java
 include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
-The [hotspot=sendProperty file=0]`sendProperty()` method needs to manually acknowledge the incoming messages, so it is annotated with the [hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)` annotation. This annotation sets the method up to expect an incoming message. To meet the requirements of acknowledgment, the method parameter is updated to receive and return a [hotspot=methodSignature file=0]`Message` of type `String`, rather than just a `String`. Then, the message payload is extracted using the [hotspot=propertyValue file=0]`getPayload()` method and checked for validity. One of the following outcomes occurs:
+The [hotspot=sendProperty file=0]`sendProperty()` method needs to manually acknowledge the incoming messages, so it is annotated with the [hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)` annotation. This annotation sets the method up to expect an incoming message. To meet the requirements of acknowledgment, the method parameter is updated to receive and return a [hotspot=methodSignature file=0]`Message` of type `String`, rather than just a `String`. Then, the `propertyName` is extracted from the `propertyMessage` incoming message using the [hotspot=propertyValue file=0]`getPayload()` method and checked for validity. One of the following outcomes occurs:
 
-* If the system property isn't valid, the [hotspot=propertyMessageAck file=0]`ack()` method acknowledges the incoming message and returns an empty reactive stream using the [hotspot=emptyReactiveStream file=0]`empty()` method. The processing is complete.
-* If the system property is valid, the method creates a [hotspot=returnMessage file=0]`Message` with the value of the requested system property and sends it to the proper channel. The method acknowledges the incoming message only after the sent message is acknowledged.
+* If the [hotspot=invalid file=0]`propertyName` system property isn't valid, the [hotspot=propertyMessageAck file=0]`ack()` method acknowledges the incoming message and returns an empty reactive stream using the [hotspot=emptyReactiveStream file=0]`empty()` method. The processing is complete.
+* If the system property is valid, the method creates a [hotspot=returnMessage file=0]`Message` object with the value of the requested system property and sends it to the proper channel. The method acknowledges the incoming message only after the sent message is acknowledged.
 
 == Waiting for a message to be acknowledged
 
