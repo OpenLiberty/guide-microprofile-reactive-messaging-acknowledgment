@@ -45,7 +45,7 @@ public class InventoryReadinessCheck implements HealthCheck {
     public HealthCheckResponse call() {
         boolean up = isReady();
         return HealthCheckResponse.named(this.getClass()
-        .getSimpleName()).state(up).build();
+               .getSimpleName()).state(up).build();
     }
 
     private boolean isReady() {
