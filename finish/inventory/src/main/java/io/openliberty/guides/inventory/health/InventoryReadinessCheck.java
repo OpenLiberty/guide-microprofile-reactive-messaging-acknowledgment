@@ -46,7 +46,7 @@ public class InventoryReadinessCheck implements HealthCheck {
     public HealthCheckResponse call() {
         boolean up = isReady();
         return HealthCheckResponse.named(this.getClass()
-        .getSimpleName()).state(up).build();
+               .getSimpleName()).state(up).build();
     }
 
     private boolean isReady() {
@@ -61,8 +61,7 @@ public class InventoryReadinessCheck implements HealthCheck {
         return adminClient;
     }
 
-    private boolean checkIfBarConsumerGroupRegistered(
-        AdminClient adminClient) {
+    private boolean checkIfBarConsumerGroupRegistered(AdminClient adminClient) {
         ListConsumerGroupsResult groupsResult = adminClient.listConsumerGroups();
         KafkaFuture<Collection<ConsumerGroupListing>> consumerGroupsFuture =
         groupsResult.valid();
@@ -73,7 +72,7 @@ public class InventoryReadinessCheck implements HealthCheck {
                 logger.info("groupId: " + g.groupId());
             }
             return consumerGroups.stream()
-            .anyMatch(group -> group.groupId().equals(groupId));
+                   .anyMatch(group -> group.groupId().equals(groupId));
         } catch (Exception e) {
             return false;
         }
