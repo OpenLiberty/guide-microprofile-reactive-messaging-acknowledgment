@@ -108,6 +108,7 @@ public class InventoryResource {
                 // tag::payload[]
                 propertyName,
                 // end::payload[]
+                // tag::acknowledgeAction[]
                 () -> {
                     /* This is the ack callback, which runs when the outgoing
                         message is acknowledged. After the outgoing message is
@@ -119,6 +120,7 @@ public class InventoryResource {
                         the work here is done. */
                     return CompletableFuture.completedFuture(null);
                 }
+                // end::acknowledgeAction[]
         );
         // end::message[]
 
