@@ -31,8 +31,7 @@ import org.eclipse.microprofile.health.Readiness;
 @ApplicationScoped
 public class InventoryReadinessCheck implements HealthCheck {
 
-    private static Logger logger = Logger.getLogger(
-        InventoryReadinessCheck.class.getName());
+    private static Logger logger = Logger.getLogger(InventoryReadinessCheck.class.getName());
 
     @Inject
     @ConfigProperty(name = "mp.messaging.connector.liberty-kafka.bootstrap.servers")
