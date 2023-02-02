@@ -62,8 +62,8 @@ public class SystemService {
     @Outgoing("propertyResponse")
     public PublisherBuilder<PropertyMessage> sendProperty(String propertyName) {
         logger.info("sendProperty: " + propertyName);
-        String propertyValue = System.getProperty(propertyName);
         // tag::null[]
+        String propertyValue = System.getProperty(propertyName);
         if (propertyValue == null) {
             logger.warning(propertyName + " is not System property.");
             // tag::returnEmpty[]
@@ -76,8 +76,8 @@ public class SystemService {
                 new PropertyMessage(getHostname(),
                                     propertyName,
                                     System.getProperty(propertyName, "unknown"));
-        // end::propertyMessage[]
         return ReactiveStreams.of(message);
+        // end::propertyMessage[]
     }
     // end::sendProperty[]
 }
