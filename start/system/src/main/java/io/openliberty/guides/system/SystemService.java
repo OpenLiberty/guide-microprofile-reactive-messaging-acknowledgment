@@ -1,13 +1,12 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * http://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *     IBM Corporation - Initial implementation
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
 package io.openliberty.guides.system;
@@ -36,7 +35,7 @@ public class SystemService {
 
     private static Logger logger = Logger.getLogger(SystemService.class.getName());
 
-    private static final OperatingSystemMXBean osMean =
+    private static final OperatingSystemMXBean OS_MEAN =
             ManagementFactory.getOperatingSystemMXBean();
     private static String hostname = null;
 
@@ -55,7 +54,7 @@ public class SystemService {
     public Publisher<SystemLoad> sendSystemLoad() {
         return Flowable.interval(15, TimeUnit.SECONDS)
                 .map((interval -> new SystemLoad(getHostname(),
-                        osMean.getSystemLoadAverage())));
+                        OS_MEAN.getSystemLoadAverage())));
     }
 
     // tag::sendProperty[]
@@ -63,8 +62,8 @@ public class SystemService {
     @Outgoing("propertyResponse")
     public PublisherBuilder<PropertyMessage> sendProperty(String propertyName) {
         logger.info("sendProperty: " + propertyName);
-        String propertyValue = System.getProperty(propertyName);
         // tag::null[]
+        String propertyValue = System.getProperty(propertyName);
         if (propertyValue == null) {
             logger.warning(propertyName + " is not System property.");
             // tag::returnEmpty[]
@@ -72,13 +71,13 @@ public class SystemService {
             // end::returnEmpty[]
         }
         // end::null[]
-        // tag::validReturn[]
+        // tag::propertyMessage[]
         PropertyMessage message =
                 new PropertyMessage(getHostname(),
                                     propertyName,
                                     System.getProperty(propertyName, "unknown"));
         return ReactiveStreams.of(message);
-        // end::validReturn[]
+        // end::propertyMessage[]
     }
     // end::sendProperty[]
 }

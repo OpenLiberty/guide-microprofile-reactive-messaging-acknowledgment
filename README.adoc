@@ -1,4 +1,4 @@
-//  Copyright (c) 2020, 2022 IBM Corporation and others.
+//  Copyright (c) 2020, 2023 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -64,7 +64,7 @@ Almost all of the methods in this application that require message acknowledgmen
 
 It’s important that the methods use the `POST_PROCESSING` strategy because it fulfills the requirement that a message isn't acknowledged until after the message is fully processed. This processing strategy is beneficial in situations where messages must reliably not get lost. When the `POST_PROCESSING` acknowledgment strategy can’t be used, the `MANUAL` strategy can be used to fulfill the same requirement. In situations where message acknowledgment reliability isn't important and losing messages is acceptable, the `PRE_PROCESSING` strategy might be appropriate.
 
-The only method in the guide that doesn't default to the `POST_PROCESSING` strategy is the [hotspot=sendProperty file=0]`sendProperty()` method in the `system` service. The [hotspot=sendProperty file=0]`sendProperty()` method receives property requests from the `inventory` service. For each property request, if the property that's being requested is valid, then the method [hotspot=validReturn file=0]`returns` a property response with the value of the property. However, if the requested property [hotspot=null file=0]`doesn't exist`, the request is ignored and no property response is [hotspot=returnEmpty file=0]`returned`.
+The only method in the guide that doesn't default to the `POST_PROCESSING` strategy is the [hotspot=sendProperty file=0]`sendProperty()` method in the `system` service. The [hotspot=sendProperty file=0]`sendProperty()` method receives property requests from the `inventory` service. For each property request, if the property that's being requested is valid, then the method creates and returns a [hotspot=propertyMessage file=0]`PropertyMessage` object with the value of the property. However, if the [hotspot=null file=0]`propertyName` requested property doesn't exist, the request is ignored and no property response is returned.
 
 A key difference exists between when a property response is returned and when a property response isn't returned. In the case where a property response is returned, the request doesn't finish processing until the response is sent and safely stored by the Kafka broker. Only then is the incoming message acknowledged. However, in the case where the requested property doesn’t exist and a property response isn't returned, the method finishes processing the request message so the message must be acknowledged immediately.
 
@@ -100,10 +100,11 @@ finish/SystemService.java
 include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
 ----
 
-The [hotspot=sendProperty file=0]`sendProperty()` method needs to manually acknowledge the incoming messages, so it is annotated with the [hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)` annotation. This annotation sets the method up to expect an incoming message. To meet the requirements of acknowledgment, the method parameter is updated to receive and return a [hotspot=methodSignature file=0]`Message` of type `String`, rather than just a `String`. Then, the message [hotspot=propertyValue file=0]`payload` is extracted and checked for validity. One of the following outcomes occurs:
+The [hotspot=sendProperty file=0]`sendProperty()` method needs to manually acknowledge the incoming messages, so it is annotated with the [hotspot=ackAnnotation file=0]`@Acknowledgment(Acknowledgment.Strategy.MANUAL)` annotation. This annotation sets the method up to expect an incoming message. To meet the requirements of acknowledgment, the method parameter is updated to receive and return a [hotspot=methodSignature file=0]`Message` of type `String`, rather than just a `String`. Then, the `propertyName` is extracted from the `propertyMessage` incoming message using the [hotspot=propertyValue file=0]`getPayload()` method and checked for validity. One of the following outcomes occurs:
 
-* If the system property [hotspot=invalid file=0]`isn't valid`, the method [hotspot=propertyMessageAck file=0]`acknowledges` the incoming message and [hotspot=emptyReactiveStream file=0]`returns` an empty reactive stream. The processing is complete.
-* If the system property is valid, the method creates a [hotspot=returnMessage file=0]`message` with the value of the requested system property and sends it to the proper channel. The method acknowledges the incoming message only after the sent message is acknowledged.
+* If the [hotspot=invalid file=0]`propertyName` system property isn't valid, the [hotspot=propertyMessageAck file=0]`ack()` method acknowledges the incoming message and returns an empty reactive stream using the [hotspot=emptyReactiveStream file=0]`empty()` method. The processing is complete.
+* If the system property is valid, the method creates a [hotspot=returnMessage file=0]`Message` object with the value of the requested system property and sends it to the proper channel. The method acknowledges the incoming message only after the sent message is acknowledged.
+
 
 == Waiting for a message to be acknowledged
 

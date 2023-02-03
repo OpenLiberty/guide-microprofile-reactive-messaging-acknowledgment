@@ -1,13 +1,12 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * http://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *     IBM Corporation - Initial implementation
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
 package io.openliberty.guides.inventory;
@@ -55,7 +54,7 @@ public class InventoryResource {
 
     @Inject
     private InventoryManager manager;
-    
+
     @GET
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
@@ -68,7 +67,7 @@ public class InventoryResource {
                 .status(Response.Status.OK)
                 .entity(systems)
                 .build();
-    }
+            }
 
     @GET
     @Path("/systems/{hostname}")
@@ -116,8 +115,8 @@ public class InventoryResource {
                         acknowledged, complete the "result" CompletableFuture. */
                     result.complete(null);
                     /* An ack callback must return a CompletionStage that says
-                        when it's complete. Asynchronous processing isn't necessary 
-                        so a completed CompletionStage is returned to indicate that 
+                        when it's complete. Asynchronous processing isn't necessary
+                        so a completed CompletionStage is returned to indicate that
                         the work here is done. */
                     return CompletableFuture.completedFuture(null);
                 }
@@ -128,7 +127,7 @@ public class InventoryResource {
         // Send the message
         propertyNameEmitter.onNext(message);
         /* Set up what happens when the message is acknowledged and the "result"
-            CompletableFuture is completed. When "result" completes, the Response 
+            CompletableFuture is completed. When "result" completes, the Response
             object is created with the status code and message. */
         // tag::returnResult[]
         return result.thenApply(a -> Response
@@ -148,10 +147,7 @@ public class InventoryResource {
                 .build();
     }
 
-    // tag::updateStatus[]
-    // tag::systemLoadIncoming[]
     @Incoming("systemLoad")
-    // end::systemLoadIncoming[]
     public void updateStatus(SystemLoad sl)  {
         String hostname = sl.hostname;
         if (manager.getSystem(hostname).isPresent()) {
@@ -162,12 +158,8 @@ public class InventoryResource {
             logger.info("Host " + hostname + " was added: " + sl);
         }
     }
-    // end::updateStatus[]
 
-    // tag::getPropertyMessage[]
-    // tag::addSystemPropertyIncoming[]
     @Incoming("addSystemProperty")
-    // end::addSystemPropertyIncoming[]
     public void getPropertyMessage(PropertyMessage pm)  {
         logger.info("getPropertyMessage: " + pm);
         String hostId = pm.hostname;
@@ -179,7 +171,6 @@ public class InventoryResource {
             logger.info("Host " + hostId + " was added: " + pm);
         }
     }
-    // end::getPropertyMessage[]
 
     // tag::sendPropertyName[]
     @Outgoing("requestSystemProperty")
