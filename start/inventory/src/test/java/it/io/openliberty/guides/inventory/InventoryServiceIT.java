@@ -2,12 +2,11 @@
 /*******************************************************************************
  * Copyright (c) 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * http://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *     IBM Corporation - Initial implementation
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
 package it.io.openliberty.guides.inventory;
@@ -75,25 +74,29 @@ public class InventoryServiceIT {
         Thread.sleep(5000);
         Response response = inventoryResource.getSystems();
         List<Properties> systems =
-                response.readEntity(new GenericType<List<Properties>>() {});
+            response.readEntity(new GenericType<List<Properties>>() {
+            });
         Assertions.assertEquals(200, response.getStatus(),
                 "Response should be 200");
         Assertions.assertEquals(systems.size(), 1);
         for (Properties system : systems) {
             Assertions.assertEquals(sl.hostname, system.get("hostname"),
-                    "Hostname doesn't match!");
+                "Hostname doesn't match!");
             BigDecimal systemLoad = (BigDecimal) system.get("systemLoad");
             Assertions.assertEquals(sl.loadAverage, systemLoad.doubleValue(),
-                    "CPU load doesn't match!");
+                "CPU load doesn't match!");
         }
     }
 
-    // Disabled the following test because MST RESTClient does not support CompletionStage return type.
+    // Disabled the following test because MST RESTClient
+    // does not support CompletionStage return type.
     // See https://github.com/MicroShed/microshed-testing/issues/213
     //@Test
-    public void testUpdateSystemProperty() throws ExecutionException, InterruptedException {
+    public void testUpdateSystemProperty()
+        throws ExecutionException, InterruptedException {
+
         CountDownLatch countDown = new CountDownLatch(1);
-        int responseStatus[] = new int[] {0};
+        int[] responseStatus = new int[] {0};
         inventoryResource.updateSystemProperty("os.name").thenAcceptAsync(r -> {
             responseStatus[0] = r.getStatus();
             countDown.countDown();
@@ -106,9 +109,10 @@ public class InventoryServiceIT {
         }
 
         Assertions.assertEquals(200, responseStatus[0],
-                "Response should be 200");
+            "Response should be 200");
 
-        ConsumerRecords<String, String> records = propertyConsumer.poll(Duration.ofMillis(30*1000));
+        ConsumerRecords<String, String> records = propertyConsumer
+            .poll(Duration.ofMillis(30 * 1000));
         System.out.println("Polled " + records.count() + " records from Kafka:");
         assertTrue(records.count() > 0, "No records processed");
         for (ConsumerRecord<String, String> record : records) {
@@ -116,7 +120,7 @@ public class InventoryServiceIT {
             System.out.println(p);
             assertEquals("os.name", p);
         }
-        
+
         propertyConsumer.commitAsync();
     }
 }
