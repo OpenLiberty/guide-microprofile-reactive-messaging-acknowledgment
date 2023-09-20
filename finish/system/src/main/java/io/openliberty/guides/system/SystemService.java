@@ -6,8 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *     IBM Corporation - Initial implementation
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
 package io.openliberty.guides.system;
@@ -35,10 +34,10 @@ import io.reactivex.rxjava3.core.Flowable;
 
 @ApplicationScoped
 public class SystemService {
-    
+
     private static Logger logger = Logger.getLogger(SystemService.class.getName());
 
-    private static final OperatingSystemMXBean OS_MEAN = 
+    private static final OperatingSystemMXBean OS_MEAN =
             ManagementFactory.getOperatingSystemMXBean();
     private static String hostname = null;
 
@@ -76,9 +75,11 @@ public class SystemService {
         // end::propertyValue[]
         logger.info("sendProperty: " + propertyValue);
         // tag::invalid[]
-        if (propertyName == null || propertyName.isEmpty() || propertyValue == "unknown") {
-            logger.warning("Provided property: " +
-                    propertyName + " is not a system property");
+        if (propertyName == null 
+        || propertyName.isEmpty() 
+        || propertyValue == "unknown"){
+            logger.warning("Provided property: "
+            + propertyName + " is not a system property");
             // tag::propertyMessageAck[]
             propertyMessage.ack();
             // end::propertyMessageAck[]
