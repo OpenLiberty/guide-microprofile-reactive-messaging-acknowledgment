@@ -13,7 +13,7 @@ docker run -d ^
     -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093 ^
     -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER ^
     --hostname=kafka ^
-    --network=$NETWORK ^
+    --network=%NETWORK% ^
     --name=kafka ^
     --rm ^
     bitnami/kafka:latest
