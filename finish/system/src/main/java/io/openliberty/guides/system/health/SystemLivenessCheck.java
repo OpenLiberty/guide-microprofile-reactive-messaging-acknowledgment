@@ -11,7 +11,7 @@
 // end::copyright[]
 package io.openliberty.guides.system.health;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -28,7 +28,7 @@ public class SystemLivenessCheck implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         boolean up = isAlive();
-        return HealthCheckResponse.named(this.getClass()
-               .getSimpleName()).state(up).build();
+        return HealthCheckResponse.named(
+            this.getClass().getSimpleName()).status(up).build();
     }
 }

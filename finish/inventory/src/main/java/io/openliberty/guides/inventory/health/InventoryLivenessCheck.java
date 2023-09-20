@@ -11,7 +11,7 @@
 // end::copyright[]
 package io.openliberty.guides.inventory.health;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -29,6 +29,6 @@ public class InventoryLivenessCheck implements HealthCheck {
     public HealthCheckResponse call() {
         boolean up = isAlive();
         return HealthCheckResponse.named(this.getClass()
-               .getSimpleName()).state(up).build();
+               .getSimpleName()).status(up).build();
     }
 }
