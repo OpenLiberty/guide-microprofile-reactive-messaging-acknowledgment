@@ -76,7 +76,7 @@ public class InventoryServiceIT {
     private static Network network = Network.newNetwork();
     // end::network[]
     public static KafkaProducer<String, SystemLoad> producer;
-        
+
     public static KafkaConsumer<String, String> propertyConsumer;
 
     private static ImageFromDockerfile inventoryImage
@@ -153,7 +153,8 @@ public class InventoryServiceIT {
                 "earliest");
         // end::setUpConsumerProps[]
         propertyConsumer = new KafkaConsumer<String, String>(consumerProps);
-        propertyConsumer.subscribe(Collections.singletonList("request.system.property"));
+        propertyConsumer.subscribe(
+            Collections.singletonList("request.system.property"));
     }
 
     @AfterAll
@@ -206,7 +207,7 @@ public class InventoryServiceIT {
                 countDown.countDown();
             });
         });
-        
+
         future.join();
 
         try {
