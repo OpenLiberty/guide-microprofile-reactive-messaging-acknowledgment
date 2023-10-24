@@ -68,13 +68,12 @@ public class SystemServiceIT {
     private static ImageFromDockerfile systemImage
         = new ImageFromDockerfile("system:1.0-SNAPSHOT")
               .withDockerfile(Paths.get("./Dockerfile"));
-    // tag::kafkaContainerSetup[]
+
     private static KafkaContainer kafkaContainer = new KafkaContainer(
         DockerImageName.parse("confluentinc/cp-kafka:latest"))
             .withListener(() -> "kafka:19092")
             .withNetwork(network);
-    // end::kafkaContainerSetup[]
-    // tag::systemContainerSetup[]
+
     private static GenericContainer<?> systemContainer =
         new GenericContainer(systemImage)
             .withNetwork(network)
@@ -83,7 +82,7 @@ public class SystemServiceIT {
             .withStartupTimeout(Duration.ofMinutes(2))
             .withLogConsumer(new Slf4jLogConsumer(logger))
             .dependsOn(kafkaContainer);
-    // end::systemContainerSetup[]
+
     @BeforeAll
     public static void startContainers() {
         kafkaContainer.start();
@@ -94,7 +93,6 @@ public class SystemServiceIT {
 
     @BeforeEach
     public void setUp() {
-        // tag::setUpConsumerProps[]
         Properties consumerProps = new Properties();
         consumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -111,11 +109,10 @@ public class SystemServiceIT {
         consumerProps.put(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
                 "earliest");
-        // end::setUpConsumerProps[]
+
         consumer = new KafkaConsumer<String, SystemLoad>(consumerProps);
         consumer.subscribe(Collections.singletonList("system.load"));
 
-        // tag::setUpPropertyConsumerProps[]
         Properties propertyConsumerProps = new Properties();
         propertyConsumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -132,12 +129,11 @@ public class SystemServiceIT {
         propertyConsumerProps.put(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
                 "earliest");
-        // end::setUpPropertyConsumerProps[]
+
         propertyConsumer =
             new KafkaConsumer<String, PropertyMessage>(propertyConsumerProps);
         propertyConsumer.subscribe(Collections.singletonList("add.system.property"));
 
-        // tag::setUpProducerProps[]
         Properties producerProps = new Properties();
         producerProps.put(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -148,7 +144,7 @@ public class SystemServiceIT {
         producerProps.put(
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 StringSerializer.class.getName());
-        // end::setUpProducerProps[]
+
         propertyProducer = new KafkaProducer<String, String>(producerProps);
     }
 
@@ -166,7 +162,7 @@ public class SystemServiceIT {
         propertyConsumer.close();
         propertyProducer.close();
     }
-    // tag::testCpuUsage[]
+
     @Test
     public void testCpuStatus() {
         ConsumerRecords<String, SystemLoad> records =
@@ -182,8 +178,7 @@ public class SystemServiceIT {
         }
         consumer.commitAsync();
     }
-    // end::testCpuUsage[]
-    // tag::testPropertyMessage[]
+
     @Test
     public void testPropertyMessage() throws IOException, InterruptedException {
         propertyProducer.send(
@@ -202,8 +197,7 @@ public class SystemServiceIT {
         }
         consumer.commitAsync();
     }
-    // end::testPropertyMessage[]
-    // tag::testInvalidPropertyMessage[]
+
     @Test
     public void testInvalidPropertyMessage() {
         propertyProducer.send(new ProducerRecord<String, String>(
@@ -215,5 +209,4 @@ public class SystemServiceIT {
         assertTrue(records.count() == 0,
             "System service printed properties of an invalid system property (null)");
     }
-    // end::testInvalidPropertyMessage[]
 }

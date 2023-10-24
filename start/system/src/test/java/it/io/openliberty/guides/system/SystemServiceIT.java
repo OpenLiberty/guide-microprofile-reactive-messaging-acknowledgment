@@ -93,7 +93,6 @@ public class SystemServiceIT {
 
     @BeforeEach
     public void setUp() {
-
         Properties consumerProps = new Properties();
         consumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,

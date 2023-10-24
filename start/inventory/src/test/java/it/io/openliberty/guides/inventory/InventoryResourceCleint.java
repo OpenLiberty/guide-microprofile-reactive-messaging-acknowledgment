@@ -13,7 +13,6 @@ package it.io.openliberty.guides.inventory;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
@@ -29,8 +28,7 @@ public interface InventoryResourceCleint {
     @GET
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getSystem(
-        @HeaderParam("Authorization") String authHeader);
+    Response getSystems();
 
     @PUT
     @Path("/data")
@@ -39,4 +37,3 @@ public interface InventoryResourceCleint {
     CompletionStage<Response> updateSystemProperty(
         String propertyName);
 }
-
