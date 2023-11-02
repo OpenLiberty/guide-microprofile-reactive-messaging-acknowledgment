@@ -14,6 +14,7 @@ package it.io.openliberty.guides.inventory;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.Produces;
 
 import java.util.concurrent.CompletionStage;
@@ -36,4 +37,9 @@ public interface InventoryResourceCleint {
     @Consumes(MediaType.TEXT_PLAIN)
     CompletionStage<Response> updateSystemProperty(
         String propertyName);
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    Response resetSystems();
+
 }
