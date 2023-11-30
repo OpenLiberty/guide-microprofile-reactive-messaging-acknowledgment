@@ -101,7 +101,8 @@ public class SystemServiceIT {
         } else {
             kafkaContainer.start();
             systemContainer.withEnv(
-                "mp.messaging.connector.liberty-kafka.bootstrap.servers", "kafka:19092");
+                "mp.messaging.connector.liberty-kafka.bootstrap.servers",
+                "kafka:19092");
             systemContainer.start();
             System.out.println("Testing with mvn verify");
         }

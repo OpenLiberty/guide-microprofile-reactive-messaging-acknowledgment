@@ -108,7 +108,8 @@ public class InventoryServiceIT {
     public static void startContainers() {
         kafkaContainer.start();
         inventoryContainer.withEnv(
-            "mp.messaging.connector.liberty-kafka.bootstrap.servers", "kafka:19092");
+            "mp.messaging.connector.liberty-kafka.bootstrap.servers",
+            "kafka:19092");
         inventoryContainer.start();
         client = createRestClient("http://"
             + inventoryContainer.getHost()
