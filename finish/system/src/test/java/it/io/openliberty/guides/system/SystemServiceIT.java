@@ -114,7 +114,7 @@ public class SystemServiceIT {
         if (isServiceRunning("localhost", 9083)) {
             consumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092");
+                "localhost:9094");
         } else {
             consumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -140,7 +140,7 @@ public class SystemServiceIT {
         if (isServiceRunning("localhost", 9083)) {
             propertyConsumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092");
+                "localhost:9094");
         } else {
             propertyConsumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -167,7 +167,7 @@ public class SystemServiceIT {
         if (isServiceRunning("localhost", 9083)) {
             producerProps.put(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092");
+                "localhost:9094");
         } else {
             producerProps.put(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,

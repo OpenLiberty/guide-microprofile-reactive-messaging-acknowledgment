@@ -115,7 +115,6 @@
                 <configuration>
                     <!-- devc config -->
                     <containerRunOpts>
-                                    -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
                                     -e WLP_LOGGING_CONSOLE_LOGLEVEL=info 
                                     -p 9083:9083
                                     --network=reactive-app
