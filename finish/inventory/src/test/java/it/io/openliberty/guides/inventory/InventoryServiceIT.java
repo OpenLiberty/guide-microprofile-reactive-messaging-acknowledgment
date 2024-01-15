@@ -144,7 +144,7 @@ public class InventoryServiceIT {
         if (isServiceRunning("localhost", 9085)) {
             producerProps.put(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092");
+                "localhost:9094");
         } else {
             producerProps.put(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -163,7 +163,7 @@ public class InventoryServiceIT {
         if (isServiceRunning("localhost", 9085)) {
             consumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092");
+                "localhost:9094");
         } else {
             consumerProps.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
