@@ -64,9 +64,9 @@ public class InventoryResource {
                 .stream()
                 .collect(Collectors.toList());
         return Response
-                .status(Response.Status.OK)
-                .entity(systems)
-                .build();
+                 .status(Response.Status.OK)
+                 .entity(systems)
+                 .build();
             }
 
     @GET
@@ -76,14 +76,14 @@ public class InventoryResource {
         Optional<Properties> system = manager.getSystem(hostname);
         if (system.isPresent()) {
             return Response
-                    .status(Response.Status.OK)
-                    .entity(system)
-                    .build();
+                     .status(Response.Status.OK)
+                     .entity(system)
+                     .build();
         }
         return Response
-                .status(Response.Status.NOT_FOUND)
-                .entity("hostname does not exist.")
-                .build();
+                 .status(Response.Status.NOT_FOUND)
+                 .entity("hostname does not exist.")
+                 .build();
     }
 
     // tag::updateSystemProperty[]
@@ -131,9 +131,9 @@ public class InventoryResource {
             object is created with the status code and message. */
         // tag::returnResult[]
         return result.thenApply(a -> Response
-                .status(Response.Status.OK)
-                .entity("Request successful for the " + propertyName + " property\n")
-                .build());
+                 .status(Response.Status.OK)
+                 .entity("Request successful for the " + propertyName + " property\n")
+                 .build());
         // end::returnResult[]
     }
     // end::updateSystemProperty[]
@@ -143,8 +143,8 @@ public class InventoryResource {
     public Response resetSystems() {
         manager.resetSystems();
         return Response
-                .status(Response.Status.OK)
-                .build();
+                 .status(Response.Status.OK)
+                 .build();
     }
 
     @Incoming("systemLoad")

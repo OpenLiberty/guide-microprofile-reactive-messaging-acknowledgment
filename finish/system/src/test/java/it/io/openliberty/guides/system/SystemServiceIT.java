@@ -70,8 +70,8 @@ public class SystemServiceIT {
         = new ImageFromDockerfile("system:1.0-SNAPSHOT")
               .withDockerfile(Paths.get("./Dockerfile"));
 
-    private static KafkaContainer kafkaContainer = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:latest"))
+    private static KafkaContainer kafkaContainer =
+        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
             .withListener(() -> "kafka:19092")
             .withNetwork(network);
 
@@ -113,25 +113,25 @@ public class SystemServiceIT {
         Properties consumerProps = new Properties();
         if (isServiceRunning("localhost", 9083)) {
             consumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "localhost:9094");
         } else {
             consumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 kafkaContainer.getBootstrapServers());
         }
         consumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
-                "system-load-status");
+            "system-load-status");
         consumerProps.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
+            StringDeserializer.class.getName());
         consumerProps.put(
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                SystemLoadDeserializer.class.getName());
+            SystemLoadDeserializer.class.getName());
         consumerProps.put(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                "earliest");
+            "earliest");
 
         consumer = new KafkaConsumer<String, SystemLoad>(consumerProps);
         consumer.subscribe(Collections.singletonList("system.load"));
@@ -139,25 +139,25 @@ public class SystemServiceIT {
         Properties propertyConsumerProps = new Properties();
         if (isServiceRunning("localhost", 9083)) {
             propertyConsumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "localhost:9094");
         } else {
             propertyConsumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 kafkaContainer.getBootstrapServers());
         }
         propertyConsumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
-                "property-name");
+            "property-name");
         propertyConsumerProps.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
+            StringDeserializer.class.getName());
         propertyConsumerProps.put(
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                PropertyMessageDeserializer.class.getName());
+            PropertyMessageDeserializer.class.getName());
         propertyConsumerProps.put(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                "earliest");
+            "earliest");
 
         propertyConsumer =
             new KafkaConsumer<String, PropertyMessage>(propertyConsumerProps);
@@ -166,19 +166,19 @@ public class SystemServiceIT {
         Properties producerProps = new Properties();
         if (isServiceRunning("localhost", 9083)) {
             producerProps.put(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "localhost:9094");
         } else {
             producerProps.put(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 kafkaContainer.getBootstrapServers());
         }
         producerProps.put(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
+            StringSerializer.class.getName());
         producerProps.put(
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
+            StringSerializer.class.getName());
 
         propertyProducer = new KafkaProducer<String, String>(producerProps);
     }
