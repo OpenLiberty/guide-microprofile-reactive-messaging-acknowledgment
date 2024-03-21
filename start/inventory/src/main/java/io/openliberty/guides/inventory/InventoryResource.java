@@ -54,13 +54,12 @@ public class InventoryResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSystems() {
         List<Properties> systems = manager.getSystems()
-                .values()
-                .stream()
-                .collect(Collectors.toList());
-        return Response
-                .status(Response.Status.OK)
-                .entity(systems)
-                .build();
+                                          .values()
+                                          .stream()
+                                          .collect(Collectors.toList());
+        return Response.status(Response.Status.OK)
+                       .entity(systems)
+                       .build();
     }
 
     @GET
@@ -69,15 +68,13 @@ public class InventoryResource {
     public Response getSystem(@PathParam("hostname") String hostname) {
         Optional<Properties> system = manager.getSystem(hostname);
         if (system.isPresent()) {
-            return Response
-                    .status(Response.Status.OK)
-                    .entity(system)
-                    .build();
+            return Response.status(Response.Status.OK)
+                           .entity(system)
+                           .build();
         }
-        return Response
-                .status(Response.Status.NOT_FOUND)
-                .entity("hostname does not exist.")
-                .build();
+        return Response.status(Response.Status.NOT_FOUND)
+                       .entity("hostname does not exist.")
+                       .build();
     }
 
     @PUT
@@ -87,19 +84,17 @@ public class InventoryResource {
     public Response updateSystemProperty(String propertyName) {
         logger.info("updateSystemProperty: " + propertyName);
         propertyNameEmitter.onNext(propertyName);
-        return Response
-                .status(Response.Status.OK)
-                .entity("Request successful for the " + propertyName + " property\n")
-                .build();
+        return Response.status(Response.Status.OK)
+                 .entity("Request successful for the " + propertyName + " property\n")
+                 .build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     public Response resetSystems() {
         manager.resetSystems();
-        return Response
-                .status(Response.Status.OK)
-                .build();
+        return Response.status(Response.Status.OK)
+                       .build();
     }
 
     @Incoming("systemLoad")
@@ -130,7 +125,7 @@ public class InventoryResource {
     @Outgoing("requestSystemProperty")
     public Publisher<String> sendPropertyName() {
         Flowable<String> flowable = Flowable.<String>create(emitter ->
-                this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
+            this.propertyNameEmitter = emitter, BackpressureStrategy.BUFFER);
         return flowable;
     }
 }

@@ -46,8 +46,8 @@ public class PropertyMessage {
         }
         PropertyMessage m = (PropertyMessage) o;
         return Objects.equals(hostname, m.hostname)
-                && Objects.equals(key, m.key)
-                && Objects.equals(value, m.value);
+               && Objects.equals(key, m.key)
+               && Objects.equals(value, m.value);
     }
 
     @Override

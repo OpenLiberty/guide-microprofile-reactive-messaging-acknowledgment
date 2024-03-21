@@ -11,61 +11,56 @@
 // end::copyright[]
 package it.io.openliberty.guides.inventory;
 
-import java.util.Collections;
-import java.util.List;
-import java.net.Socket;
-import java.time.Duration;
-import java.math.BigDecimal;
-import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriBuilder;
-import jakarta.ws.rs.client.ClientBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Assertions;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.testcontainers.containers.Network;
-import org.testcontainers.utility.DockerImageName;
+import java.math.BigDecimal;
+import java.net.Socket;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.images.builder.ImageFromDockerfile;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.openliberty.guides.models.SystemLoad;
 import io.openliberty.guides.models.SystemLoad.SystemLoadSerializer;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 
 @Testcontainers
 public class InventoryServiceIT {
@@ -80,12 +75,12 @@ public class InventoryServiceIT {
 
     public static KafkaConsumer<String, String> propertyConsumer;
 
-    private static ImageFromDockerfile inventoryImage
-        = new ImageFromDockerfile("inventory:1.0-SNAPSHOT")
+    private static ImageFromDockerfile inventoryImage =
+        new ImageFromDockerfile("inventory:1.0-SNAPSHOT")
             .withDockerfile(Paths.get("./Dockerfile"));
 
-    private static KafkaContainer kafkaContainer = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:latest"))
+    private static KafkaContainer kafkaContainer =
+        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
             .withListener(() -> "kafka:19092")
             .withNetwork(network);
 
@@ -143,44 +138,44 @@ public class InventoryServiceIT {
         Properties producerProps = new Properties();
         if (isServiceRunning("localhost", 9085)) {
             producerProps.put(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "localhost:9094");
         } else {
             producerProps.put(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 kafkaContainer.getBootstrapServers());
         }
         producerProps.put(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
+            StringSerializer.class.getName());
         producerProps.put(
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                SystemLoadSerializer.class.getName());
+            SystemLoadSerializer.class.getName());
 
         producer = new KafkaProducer<String, SystemLoad>(producerProps);
 
         Properties consumerProps = new Properties();
         if (isServiceRunning("localhost", 9085)) {
             consumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "localhost:9094");
         } else {
             consumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 kafkaContainer.getBootstrapServers());
         }
         consumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
-                "property-name");
+            "property-name");
         consumerProps.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
+            StringDeserializer.class.getName());
         consumerProps.put(
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
+            StringDeserializer.class.getName());
         consumerProps.put(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                "earliest");
+            "earliest");
 
         propertyConsumer = new KafkaConsumer<String, String>(consumerProps);
         propertyConsumer.subscribe(
@@ -209,15 +204,14 @@ public class InventoryServiceIT {
         Response response = client.getSystems();
         List<Properties> systems =
                 response.readEntity(new GenericType<List<Properties>>() { });
-        Assertions.assertEquals(200, response.getStatus(),
-                "Response should be 200");
+        assertEquals(200, response.getStatus(), "Response should be 200");
         Assertions.assertEquals(systems.size(), 1);
         for (Properties system : systems) {
-            Assertions.assertEquals(sl.hostname, system.get("hostname"),
-                    "Hostname doesn't match!");
+            assertEquals(sl.hostname, system.get("hostname"),
+                "Hostname doesn't match!");
             BigDecimal systemLoad = (BigDecimal) system.get("systemLoad");
-            Assertions.assertEquals(sl.loadAverage, systemLoad.doubleValue(),
-                    "CPU load doesn't match!");
+            assertEquals(sl.loadAverage, systemLoad.doubleValue(),
+                "CPU load doesn't match!");
         }
     }
     @Test
@@ -243,8 +237,7 @@ public class InventoryServiceIT {
             e.printStackTrace();
         }
 
-        Assertions.assertEquals(200, responseStatus[0],
-            "Response should be 200");
+        assertEquals(200, responseStatus[0], "Response should be 200");
 
         ConsumerRecords<String, String> records =
             propertyConsumer.poll(Duration.ofMillis(30 * 1000));

@@ -66,9 +66,9 @@ public class SystemServiceIT {
 
     public static KafkaProducer<String, String> propertyProducer;
 
-    private static ImageFromDockerfile systemImage
-        = new ImageFromDockerfile("system:1.0-SNAPSHOT")
-              .withDockerfile(Paths.get("./Dockerfile"));
+    private static ImageFromDockerfile systemImage =
+        new ImageFromDockerfile("system:1.0-SNAPSHOT")
+            .withDockerfile(Paths.get("./Dockerfile"));
 
     private static KafkaContainer kafkaContainer =
         new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
