@@ -1,4 +1,4 @@
-//  Copyright (c) 2020, 2023 IBM Corporation and others.
+//  Copyright (c) 2020, 2024 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -10,11 +10,12 @@
 :page-layout: guide-multipane
 :page-duration: 20 minutes
 :page-releasedate: 2020-08-27
+:page-majorupdateddate: 2024-04-30
 :page-guide-category: microprofile
 :page-essential: false
 :page-description: Learn how to use MicroProfile Reactive Messaging acknowledgment strategies to acknowledge messages.
 :guide-author: Open Liberty
-:page-tags: ['MicroProfile', 'Jakarta EE']
+:page-tags: ['microprofile', 'jakarta-ee']
 :page-related-guides: ['microprofile-reactive-messaging','microprofile-reactive-messaging-rest','reactive-messaging-sse','reactive-service-testing','microprofile-rest-client-async']
 :page-permalink: /guides/{projectid}
 :imagesdir: /img/guide/{projectid}
@@ -151,7 +152,7 @@ docker build -t system:1.0-SNAPSHOT system/.
 docker build -t inventory:1.0-SNAPSHOT inventory/.
 ```
 
-Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and the microservices in the project. For simplicity, the script starts one instance of the `system` service.
+Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It also creates containers for Kafka and the microservices in the project. For simplicity, the script starts one instance of the `system` service.
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -302,9 +303,9 @@ You developed an application by using MicroProfile Reactive Messaging, Open Libe
 
 Learn more about MicroProfile.
 
-https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html[View the MicroProfile Reactive Messaging Specification^]
+https://download.eclipse.org/microprofile/microprofile-reactive-messaging-3.0/microprofile-reactive-messaging-spec.html[View the MicroProfile Reactive Messaging Specification^]
 
-https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/apidocs/[View the MicroProfile Reactive Messaging Javadoc^]
+https://download.eclipse.org/microprofile/microprofile-reactive-messaging-3.0/apidocs/[View the MicroProfile Reactive Messaging Javadoc^]
 
 https://openliberty.io/docs/latest/microprofile.html[View the MicroProfile^]
 

@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,8 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsResult;
@@ -42,7 +42,7 @@ public class SystemReadinessCheck implements HealthCheck {
     public HealthCheckResponse call() {
         boolean up = isReady();
         return HealthCheckResponse.named(
-            this.getClass().getSimpleName()).state(up).build();
+            this.getClass().getSimpleName()).status(up).build();
     }
 
     private boolean isReady() {
