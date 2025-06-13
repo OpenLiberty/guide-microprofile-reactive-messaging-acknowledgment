@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020, 2024 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.Properties;
 import java.io.IOException;
 import java.nio.file.Paths;
-
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
@@ -70,8 +69,8 @@ public class SystemServiceIT {
         new ImageFromDockerfile("system:1.0-SNAPSHOT")
             .withDockerfile(Paths.get("./Dockerfile"));
 
-    private static KafkaContainer kafkaContainer =
-        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
+    private static ConfluentKafkaContainer confluentKafkaContainer =
+        new ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
             .withListener(() -> "kafka:19092")
             .withNetwork(network);
 
@@ -82,7 +81,7 @@ public class SystemServiceIT {
             .waitingFor(Wait.forHttp("/health/ready").forPort(9083))
             .withStartupTimeout(Duration.ofMinutes(2))
             .withLogConsumer(new Slf4jLogConsumer(logger))
-            .dependsOn(kafkaContainer);
+            .dependsOn(confluentKafkaContainer);
 
     private static boolean isServiceRunning(String host, int port) {
         try {
@@ -99,7 +98,7 @@ public class SystemServiceIT {
         if (isServiceRunning("localhost", 9083)) {
             System.out.println("Testing with mvn liberty:devc");
         } else {
-            kafkaContainer.start();
+            confluentKafkaContainer.start();
             systemContainer.withEnv(
                 "mp.messaging.connector.liberty-kafka.bootstrap.servers",
                 "kafka:19092");
@@ -118,7 +117,7 @@ public class SystemServiceIT {
         } else {
             consumerProps.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                kafkaContainer.getBootstrapServers());
+                confluentKafkaContainer.getBootstrapServers());
         }
         consumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
@@ -144,7 +143,7 @@ public class SystemServiceIT {
         } else {
             propertyConsumerProps.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                kafkaContainer.getBootstrapServers());
+                confluentKafkaContainer.getBootstrapServers());
         }
         propertyConsumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
@@ -171,7 +170,7 @@ public class SystemServiceIT {
         } else {
             producerProps.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                kafkaContainer.getBootstrapServers());
+                confluentKafkaContainer.getBootstrapServers());
         }
         producerProps.put(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
@@ -187,7 +186,7 @@ public class SystemServiceIT {
     @AfterAll
     public static void stopContainers() {
         systemContainer.stop();
-        kafkaContainer.stop();
+        confluentKafkaContainer.stop();
         network.close();
     }
 
