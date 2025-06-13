@@ -14,7 +14,6 @@ package it.io.openliberty.guides.inventory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.testcontainers.kafka.ConfluentKafkaContainer;
 import java.math.BigDecimal;
 import java.net.Socket;
 import java.nio.file.Paths;
@@ -47,13 +46,12 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
 import io.openliberty.guides.models.SystemLoad;
 import io.openliberty.guides.models.SystemLoad.SystemLoadSerializer;
@@ -79,7 +77,7 @@ public class InventoryServiceIT {
         new ImageFromDockerfile("inventory:1.0-SNAPSHOT")
             .withDockerfile(Paths.get("./Dockerfile"));
 
-    private static ConfluentKafkaContainer confluentKafkaContainer =
+    private static ConfluentKafkaContainer kafkaContainer =
         new ConfluentKafkaContainer("confluentinc/cp-kafka:latest")
             .withListener("kafka:19092")
             .withNetwork(network);
@@ -91,7 +89,7 @@ public class InventoryServiceIT {
             .waitingFor(Wait.forHttp("/health/ready").forPort(9085))
             .withStartupTimeout(Duration.ofMinutes(2))
             .withLogConsumer(new Slf4jLogConsumer(logger))
-            .dependsOn(confluentKafkaContainer);
+            .dependsOn(kafkaContainer);
 
     private static InventoryResourceClient createRestClient(String urlPath) {
         ClientBuilder builder = ResteasyClientBuilder.newBuilder();
@@ -119,7 +117,7 @@ public class InventoryServiceIT {
             urlPath = "http://localhost:9085";
         } else {
             System.out.println("Testing with mvn verify");
-            confluentKafkaContainer.start();
+            kafkaContainer.start();
             inventoryContainer.withEnv(
                 "mp.messaging.connector.liberty-kafka.bootstrap.servers",
                 "kafka:19092");
@@ -143,7 +141,7 @@ public class InventoryServiceIT {
         } else {
             producerProps.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                confluentKafkaContainer.getBootstrapServers());
+                kafkaContainer.getBootstrapServers());
         }
         producerProps.put(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
@@ -162,7 +160,7 @@ public class InventoryServiceIT {
         } else {
             consumerProps.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                confluentKafkaContainer.getBootstrapServers());
+                kafkaContainer.getBootstrapServers());
         }
         consumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
@@ -186,7 +184,7 @@ public class InventoryServiceIT {
     public static void stopContainers() {
         client.resetSystems();
         inventoryContainer.stop();
-        confluentKafkaContainer.stop();
+        kafkaContainer.stop();
         network.close();
     }
 
