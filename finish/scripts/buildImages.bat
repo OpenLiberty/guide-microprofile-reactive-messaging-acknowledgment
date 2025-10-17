@@ -2,7 +2,7 @@
 @ECHO OFF
 
 start /b docker pull icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi
-start /b docker pull bitnamilegacy/kafka:latest
+start /b docker pull apache/kafka:latest
 
 start /b docker build -q -t system:1.0-SNAPSHOT system\.
 start /b docker build -q -t inventory:1.0-SNAPSHOT inventory\.
