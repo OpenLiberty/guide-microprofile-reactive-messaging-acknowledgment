@@ -218,7 +218,7 @@ public class SystemServiceIT {
             new ProducerRecord<String, String>("request.system.property", "os.name"));
 
         ConsumerRecords<String, PropertyMessage> records =
-                propertyConsumer.poll(Duration.ofMillis(30 * 1000));
+            propertyConsumer.poll(Duration.ofMillis(30 * 1000));
         System.out.println("Polled " + records.count() + " records from Kafka:");
         assertTrue(records.count() > 0, "No records processed");
         for (ConsumerRecord<String, PropertyMessage> record : records) {
