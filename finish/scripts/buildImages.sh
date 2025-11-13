@@ -2,7 +2,7 @@
 
 echo Building images
 
-docker pull -q icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi
+docker pull -q icr.io/appcafe/open-liberty:kernel-slim-java17-openj9-ubi
 docker pull -q apache/kafka:latest
 
 docker build -t system:1.0-SNAPSHOT system/. &
